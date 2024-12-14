@@ -28,9 +28,8 @@ ui_print "-----------------🗡-----------------"
 ui_print "            MODULE INFO             "
 ui_print "-----------------🗡-----------------"
 ui_print "Name : Anya Melfissa Disable Thermal"
-ui_print "Version : FINAL REV 2"
-ui_print "Support Device : MT 6833 / D 6080"
-ui_print "Support Root : Magisk / KernelSU"
+ui_print "Version : Keris 1.0"
+ui_print "Support Root : Magisk / KernelS / APatch"
 ui_print " "
 sleep 1.5
 
@@ -48,4 +47,4 @@ ui_print "        INSTALLING MODULES OK       "
 ui_print "🗡--------------------------------🗡"
 sleep 1.5
 
-am start -a android.intent.action.VIEW -d https://t.me/KanagawaLabAnnouncement/20 >/dev/null 2>&1
+am start -a android.intent.action.VIEW -d https://t.me/KanagawaLabAnnouncement/289 >/dev/null 2>&1

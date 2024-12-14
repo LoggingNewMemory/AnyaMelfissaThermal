@@ -1,179 +1,15 @@
-# Thermal Zone 5
+tweak() {
+	if [ -f $2 ]; then
+		chmod 644 $2 >/dev/null 2>&1
+		echo $1 >$2 2>/dev/null
+		chmod 444 $2 >/dev/null 2>&1
+	fi
+}
 
-chmod 644 /sys/class/thermal/thermal_zone5/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone5/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone5/trip_point_0_temp
 
-# Thermal Zone 6
-chmod 644 /sys/class/thermal/thermal_zone6/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone6/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone6/trip_point_0_temp
-
-# Thermal Zone 7
-
-chmod 644 /sys/class/thermal/thermal_zone7/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone7/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone7/trip_point_0_temp
-
-chmod 644 /sys/class/thermal/thermal_zone7/trip_point_1_temp
-echo 999999999 > /sys/class/thermal/thermal_zone7/trip_point_1_temp
-chmod 444 /sys/class/thermal/thermal_zone7/trip_point_1_temp
-
-chmod 644 /sys/class/thermal/thermal_zone7/trip_point_2_temp
-echo 999999999 > /sys/class/thermal/thermal_zone7/trip_point_2_temp
-chmod 444 /sys/class/thermal/thermal_zone7/trip_point_2_temp
-
-chmod 644 /sys/class/thermal/thermal_zone7/trip_point_3_temp
-echo 999999999 > /sys/class/thermal/thermal_zone7/trip_point_3_temp
-chmod 444 /sys/class/thermal/thermal_zone7/trip_point_3_temp
-
-# Thermal Zone 8
-
-chmod 644 /sys/class/thermal/thermal_zone8/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone8/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone8/trip_point_0_temp
-
-# Thermal Zone 9
-
-chmod 644 /sys/class/thermal/thermal_zone9/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone9/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone9/trip_point_0_temp
-
-chmod 644 /sys/class/thermal/thermal_zone9/trip_point_1_temp
-echo 999999999 > /sys/class/thermal/thermal_zone9/trip_point_1_temp
-chmod 444 /sys/class/thermal/thermal_zone9/trip_point_1_temp
-
-chmod 644 /sys/class/thermal/thermal_zone9/trip_point_2_temp
-echo 999999999 > /sys/class/thermal/thermal_zone9/trip_point_2_temp
-chmod 444 /sys/class/thermal/thermal_zone9/trip_point_2_temp
-
-chmod 644 /sys/class/thermal/thermal_zone9/trip_point_3_temp
-echo 999999999 > /sys/class/thermal/thermal_zone9/trip_point_3_temp
-chmod 444 /sys/class/thermal/thermal_zone9/trip_point_3_temp
-
-chmod 644 /sys/class/thermal/thermal_zone9/trip_point_4_temp
-echo 999999999 > /sys/class/thermal/thermal_zone9/trip_point_4_temp
-chmod 444 /sys/class/thermal/thermal_zone9/trip_point_4_temp
-
-# Thermal Zone 10 
-
-chmod 644 /sys/class/thermal/thermal_zone10/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone10/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone10/trip_point_0_temp
-
-chmod 644 /sys/class/thermal/thermal_zone10/trip_point_1_temp
-echo 999999999 > /sys/class/thermal/thermal_zone10/trip_point_1_temp
-chmod 444 /sys/class/thermal/thermal_zone10/trip_point_1_temp
-
-chmod 644 /sys/class/thermal/thermal_zone10/trip_point_2_temp
-echo 999999999 > /sys/class/thermal/thermal_zone10/trip_point_2_temp
-chmod 444 /sys/class/thermal/thermal_zone10/trip_point_2_temp
-
-chmod 644 /sys/class/thermal/thermal_zone10/trip_point_3_temp
-echo 999999999 > /sys/class/thermal/thermal_zone10/trip_point_3_temp
-chmod 444 /sys/class/thermal/thermal_zone10/trip_point_3_temp
-
-# Thermal Zone 11
-
-chmod 644 /sys/class/thermal/thermal_zone11/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone11/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone11/trip_point_0_temp
-
-# Thermal Zone 12
-
-chmod 644 /sys/class/thermal/thermal_zone12/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone12/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone12/trip_point_0_temp
-
-# Thermal Zone 13
-
-chmod 644 /sys/class/thermal/thermal_zone13/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone13/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone13/trip_point_0_temp
-
-# Thermal Zone 14
-
-chmod 644 /sys/class/thermal/thermal_zone14/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone14/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone14/trip_point_0_temp
-
-# Thermal Zone 15
-
-chmod 644 /sys/class/thermal/thermal_zone15/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone15/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone15/trip_point_0_temp
-
-# Thermal Zone 16
-
-chmod 644 /sys/class/thermal/thermal_zone16/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone16/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone16/trip_point_0_temp
-
-# Thermal Zone 17
-
-chmod 644 /sys/class/thermal/thermal_zone17/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone17/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone17/trip_point_0_temp
-
-# Thermal Zone 18
-
-chmod 644 /sys/class/thermal/thermal_zone18/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone18/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone18/trip_point_0_temp
-
-# Thermal Zone 19
-
-chmod 644 /sys/class/thermal/thermal_zone19/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone19/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone19/trip_point_0_temp
-
-# Thermal Zone 20
-
-chmod 644 /sys/class/thermal/thermal_zone20/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone20/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone20/trip_point_0_temp
-
-# Thermal Zone 21
-
-chmod 644 /sys/class/thermal/thermal_zone21/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone21/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone21/trip_point_0_temp
-
-# Thermal Zone 22
-
-chmod 644 /sys/class/thermal/thermal_zone22/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone22/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone22/trip_point_0_temp
-
-# Thermal Zone 23
-
-chmod 644 /sys/class/thermal/thermal_zone23/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone23/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone23/trip_point_0_temp
-
-# Thermal Zone 24
-
-chmod 644 /sys/class/thermal/thermal_zone24/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone24/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone24/trip_point_0_temp
-
-# Thermal Zone 25
-
-chmod 644 /sys/class/thermal/thermal_zone25/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone25/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone25/trip_point_0_temp
-
-# Thermal Zone 26
-
-chmod 644 /sys/class/thermal/thermal_zone26/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone26/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone26/trip_point_0_temp
-
-# Thermal Zone 27
-
-chmod 644 /sys/class/thermal/thermal_zone27/trip_point_0_temp
-echo 999999999 > /sys/class/thermal/thermal_zone27/trip_point_0_temp
-chmod 444 /sys/class/thermal/thermal_zone27/trip_point_0_temp
+for trip in /sys/class/thermal/thermal_zone*/trip_point*; do
+    tweak 999999999 $trip
+done
 
 stop thermal
 stop thermal_manager
@@ -192,6 +28,40 @@ done
 for c in $(getprop | grep thermal | cut -f1 -d] | cut -f2 -d[ | grep -F init.svc_); do 
     setprop $c ""
 done
+
+# From RiProG Thermal NextGen
+
+for i in {1..5}; do
+    for result in $(getprop | grep -E 'logd|thermal' | cut -d '[' -f2 | cut -d ']' -f1); do
+        output=$(getprop "$result")
+        if [[ "$output" == "running" || "$output" == "restarting" ]]; then
+            service="${result:9}"
+            setprop ctl.stop "$service"
+        fi
+    done
+done
+
+for i in {1..5}; do
+    for result in $(getprop | grep -E 'logd|thermal' | cut -d '[' -f2 | cut -d ']' -f1); do
+        output=$(getprop "$result")
+        if [[ "$output" == "running" || "$output" == "restarting" ]]; then
+            service="${result:9}"
+            stop "$service"
+            getprop "$result"
+        fi
+    done
+done
+
+for i in {1..5}; do
+    for result in $(getprop | grep -E 'logd|thermal' | cut -d '[' -f2 | cut -d ']' -f1); do
+        output=$(getprop "$result")
+        if [[ "$output" == "running" || "$output" == "restarting" ]]; then
+            setprop "$result" "stopped"
+        fi
+    done
+done
+
+find /sys/devices/virtual/thermal -type f -exec chmod 000 {} +
 
 resetprop -n dalvik.vm.dexopt.thermal-cutoff 0
 resetprop -n ro.boottime.thermal 0
