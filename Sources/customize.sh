@@ -28,7 +28,7 @@ ui_print "-----------------🗡-----------------"
 ui_print "            MODULE INFO             "
 ui_print "-----------------🗡-----------------"
 ui_print "Name : Anya Melfissa Disable Thermal"
-ui_print "Version : Keris 1.0"
+ui_print "Version : Keris 2.0"
 ui_print "Support Root : Magisk / KernelS / APatch"
 ui_print " "
 sleep 1.5
@@ -39,12 +39,18 @@ ui_print "🗡--------------------------------🗡"
 ui_print " "
 sleep 1.5
 
+cp -r "$MODPATH"/Anya.png /data/local/tmp >/dev/null 2>&1
 unzip -o "$ZIPFILE" 'AnyaMelfissa/*' -d $MODPATH >&2
 set_perm_recursive $MODPATH/AnyaMelfissa 0 0 0755 0644
+set_perm_recursive $MODPATH 0 0 0755 0755
+
 
 ui_print "🗡--------------------------------🗡"
 ui_print "        INSTALLING MODULES OK       "
 ui_print "🗡--------------------------------🗡"
 sleep 1.5
 
-am start -a android.intent.action.VIEW -d https://t.me/KanagawaLabAnnouncement/289 >/dev/null 2>&1
+ui_print " "
+ui_print "  Even if you install this module   "
+ui_print "Your phone won't transform into Anya" 
+ui_print "         [Kanagawa Yamada]          "
