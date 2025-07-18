@@ -1,8 +1,8 @@
 LATESTARTSERVICE=true
 
-ui_print "🗡--------------------------------🗡"
+ui_print "------------------------------------"
 ui_print "    ANYA MELFISSA DISABLE THERMAL   "
-ui_print "🗡--------------------------------🗡"
+ui_print "------------------------------------"
 ui_print "         By: Kanagawa Yamada        "
 ui_print "------------------------------------"
 ui_print "      READ THE TELEGRAM MESSAGE     "
@@ -24,18 +24,18 @@ ui_print "RAM : $(free | grep Mem |  awk '{print $2}') "
 ui_print " "
 sleep 1.5
 
-ui_print "-----------------🗡-----------------"
+ui_print "------------------------------------"
 ui_print "            MODULE INFO             "
-ui_print "-----------------🗡-----------------"
+ui_print "------------------------------------"
 ui_print "Name : Anya Melfissa Disable Thermal"
 ui_print "Version : Keris 2.0"
 ui_print "Support Root : Magisk / KernelS / APatch"
 ui_print " "
 sleep 1.5
 
-ui_print "🗡--------------------------------🗡"
+ui_print "------------------------------------"
 ui_print "         INSTALLING MODULES         "
-ui_print "🗡--------------------------------🗡"
+ui_print "------------------------------------"
 ui_print " "
 sleep 1.5
 
@@ -45,9 +45,9 @@ set_perm_recursive $MODPATH/AnyaMelfissa 0 0 0755 0644
 set_perm_recursive $MODPATH 0 0 0755 0755
 
 
-ui_print "🗡--------------------------------🗡"
+ui_print "------------------------------------"
 ui_print "        INSTALLING MODULES OK       "
-ui_print "🗡--------------------------------🗡"
+ui_print "------------------------------------"
 sleep 1.5
 
 ui_print " "
