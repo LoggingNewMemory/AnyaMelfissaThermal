@@ -28,7 +28,7 @@ ui_print "------------------------------------"
 ui_print "            MODULE INFO             "
 ui_print "------------------------------------"
 ui_print "Name : Anya Melfissa Disable Thermal"
-ui_print "Version : Keris 2.0"
+ui_print "Version : Keris 3.0"
 ui_print "Support Root : Magisk / KernelS / APatch"
 ui_print " "
 sleep 1.5
