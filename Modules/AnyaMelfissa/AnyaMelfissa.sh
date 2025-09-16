@@ -6,35 +6,40 @@
 #
 
 # RiProG Thermal 2.6.1 (RTN 2.6.1 Low + UnSensor) - Converted to shell by Kanagawa Yamada
-# Loop 1: Stop services using 'setprop ctl.stop' (runs twice)
+
+# Define the list of properties to check
+get_properties() {
+    getprop | grep -E 'logd|thermal' | cut -d '[' -f2 | cut -d ']' -f1 | grep -v 'hal'
+}
+
+# --- First Attempt to Stop Services (using setprop) ---
+# This loop runs twice, attempting to stop services using the 'setprop ctl.stop' method.
 for i in 1 2; do
-    get_services | while read -r prop; do
+    get_properties | while read -r prop; do
         # Ensure the property name is not empty
         if [ -n "$prop" ]; then
             status=$(getprop "$prop")
-            # Check if the service is currently 'running' or 'restarting'
+            # Check if the service is running or restarting
             if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
-                # Extract the service name from the property (e.g., 'init.svc.thermal-engine' -> 'thermal-engine')
+                # Extract service name (e.g., 'thermal-engine' from 'init.svc.thermal-engine')
                 service=${prop:9}
-                # Stop the service using the setprop method
                 setprop ctl.stop "$service"
             fi
         fi
     done
-    # Wait for 5 seconds before the next attempt
     sleep 5
 done
 
-# Loop 2: Stop services using the 'stop' command (runs twice)
+# --- Second Attempt to Stop Services (using stop) ---
+# This loop also runs twice, using the 'stop' command as an alternative method.
 for i in 1 2; do
-    get_services | while read -r prop; do
+    get_properties | while read -r prop; do
         if [ -n "$prop" ]; then
             status=$(getprop "$prop")
             if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
                 service=${prop:9}
-                # Stop the service using the direct 'stop' command
                 stop "$service"
-                # This getprop call was in the C code, preserved for functional equivalence
+                # This getprop was in the original C code, likely to re-check status
                 getprop "$prop"
             fi
         fi
@@ -42,13 +47,14 @@ for i in 1 2; do
     sleep 5
 done
 
-# --- Final Actions ---
-# Wait for 10 seconds to allow services to fully stop.
+# Wait for services to fully stop
 sleep 10
 
-# Find all files in the virtual thermal driver directory and remove all their permissions (r, w, x).
-# This effectively prevents the system or any app from reading temperature sensors.
+# --- Final Step: Lock Thermal Files ---
+# Find all files (not directories) in the virtual thermal path
+# and remove all read/write/execute permissions for all users.
 find /sys/devices/virtual/thermal -type f -exec chmod 000 {} +
+
 # Original Stripped Anya Thermal
 
 tweak() {
