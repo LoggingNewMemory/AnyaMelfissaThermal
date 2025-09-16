@@ -5,54 +5,50 @@
 # Do not use or modify this code without permission.
 #
 
-# RiProG Thermal 2.2 (RTN 2.2 Normal + GamingFix R2) - Converted to shell by Kanagawa Yamada
-
-# --- Step 1: Stop Running Thermal Services ---
-# Find all thermal-related services (except 'hal' services),
-# check if they are running, and stop them.
-getprop | grep 'thermal' | cut -d '[' -f2 | cut -d ']' -f1 | grep -v 'hal' | while read -r prop; do
-    # Get the current status of the service property (e.g., "running").
-    status=$(getprop "$prop")
-
-    # Check if the service is running or restarting.
-    if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
-        # Extract the service name from the property (e.g., 'init.svc.thermal-engine' -> 'thermal-engine').
-        service_name=$(echo "$prop" | sed 's/^init\.svc\.//')
-        # Stop the service.
-        stop "$service_name"
-    fi
+# RiProG Thermal 2.6.1 (RTN 2.6.1 Low + UnSensor) - Converted to shell by Kanagawa Yamada
+# Loop 1: Stop services using 'setprop ctl.stop' (runs twice)
+for i in 1 2; do
+    get_services | while read -r prop; do
+        # Ensure the property name is not empty
+        if [ -n "$prop" ]; then
+            status=$(getprop "$prop")
+            # Check if the service is currently 'running' or 'restarting'
+            if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
+                # Extract the service name from the property (e.g., 'init.svc.thermal-engine' -> 'thermal-engine')
+                service=${prop:9}
+                # Stop the service using the setprop method
+                setprop ctl.stop "$service"
+            fi
+        fi
+    done
+    # Wait for 5 seconds before the next attempt
+    sleep 5
 done
 
-# --- Step 2: Suspend Thermal Processes ---
-# Find the Process IDs (PIDs) of all thermal-related processes (except for a specific Mediatek service)
-# and send a SIGSTOP signal to suspend them.
-ps -e -o pid,comm | grep 'thermal' | grep -v 'android.hardware.thermal-service.mediatek' | awk '{print $1}' | while read -r pid; do
-    # Suspend the process using its PID.
-    kill -STOP "$pid"
+# Loop 2: Stop services using the 'stop' command (runs twice)
+for i in 1 2; do
+    get_services | while read -r prop; do
+        if [ -n "$prop" ]; then
+            status=$(getprop "$prop")
+            if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
+                service=${prop:9}
+                # Stop the service using the direct 'stop' command
+                stop "$service"
+                # This getprop call was in the C code, preserved for functional equivalence
+                getprop "$prop"
+            fi
+        fi
+    done
+    sleep 5
 done
 
-# Wait for 5 seconds to ensure processes are suspended.
-sleep 5
+# --- Final Actions ---
+# Wait for 10 seconds to allow services to fully stop.
+sleep 10
 
-# --- Step 3: Mark Thermal Services as Paused ---
-# Find all thermal-related services again.
-# If they are still listed as running, change their property status to 'paused'.
-getprop | grep 'thermal' | cut -d '[' -f2 | cut -d ']' -f1 | while read -r prop; do
-    # Get the current status of the service property.
-    status=$(getprop "$prop")
-
-    # Check if the service is running or restarting.
-    if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
-        # Set the property to 'paused' to prevent it from restarting.
-        setprop "$prop" paused
-    fi
-done
-
-# --- Step 4: Ensure Vendor Thermal HAL is Running ---
-# The primary hardware abstraction layer for thermal management should be running.
-# This sets its state to 'running', starting it if it was stopped.
-setprop init.svc.vendor.thermal-hal running
-
+# Find all files in the virtual thermal driver directory and remove all their permissions (r, w, x).
+# This effectively prevents the system or any app from reading temperature sensors.
+find /sys/devices/virtual/thermal -type f -exec chmod 000 {} +
 # Original Stripped Anya Thermal
 
 tweak() {
