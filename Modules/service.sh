@@ -14,6 +14,4 @@ for trip in /sys/class/thermal/thermal_zone*/trip_point*; do
     tweak 999999999 "$trip"
 done
 
-find /sys/devices/virtual/thermal -type f -exec chmod 444 {} +
-
 sh /data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaMelfissa.sh
