@@ -27,11 +27,3 @@ get_properties | while read -r prop; do
         fi
     fi
 done
-
-su -lp 2000 -c "cmd notification post -S bigtext -t 'Anya Melfissa' -i file:///data/local/tmp/Anya.png -I file:///data/local/tmp/Anya.png TagAnya 'Good Day! Thermal Is Dead BTW'"
-
-# Wait for another 5 seconds.
-sleep 5
-
-# Script finished. Exit successfully.
-exit 0
