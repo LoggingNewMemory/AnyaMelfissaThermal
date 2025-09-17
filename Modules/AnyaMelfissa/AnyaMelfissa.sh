@@ -18,6 +18,16 @@ get_properties | while read -r prop; do
     fi
 done
 
+get_properties | while read -r prop; do
+    if [ -n "$prop" ]; then
+        status=$(getprop "$prop")
+        if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
+            service=${prop:9}
+            stop "$service"
+        fi
+    fi
+done
+
 su -lp 2000 -c "cmd notification post -S bigtext -t 'Anya Melfissa' -i file:///data/local/tmp/Anya.png -I file:///data/local/tmp/Anya.png TagAnya 'Good Day! Thermal Is Dead BTW'"
 
 # Wait for another 5 seconds.
