@@ -23,11 +23,13 @@ while true; do
   if echo "$EVENT" | grep -q "KEY_VOLUMEUP.*DOWN"; then
     /data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaMelfissa.sh
     ui_print "Anya Melfissa!"
+    ui_print "Thermal Disabled"
     break 
 
   elif echo "$EVENT" | grep -q "KEY_VOLUMEDOWN.*DOWN"; then
     /data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaKawaii.sh
     ui_print "Anya Kawaii!"
+    ui_print "Thermal Enabled"
     break 
   fi
 done
