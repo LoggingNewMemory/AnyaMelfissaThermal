@@ -26,7 +26,6 @@ while true; do
     break 
 
   elif echo "$EVENT" | grep -q "KEY_VOLUMEDOWN.*DOWN"; then
-    ui_print "Enabling Thermal..."
     /data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaKawaii.sh
     ui_print "Anya Kawaii!"
     break 
@@ -35,6 +34,7 @@ done
 
 ui_print " "
 ui_print "I love Anya Melfissa"
+ui_print "Who doesn't want a living weapon as a partner?"
 ui_print " "
 
 exit 0
