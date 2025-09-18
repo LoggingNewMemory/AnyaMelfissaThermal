@@ -1,4 +1,4 @@
-![Banner](https://github.com/user-attachments/assets/2cb5ae53-095f-4378-9dc2-2502d80f015d)
+<img width="1280" height="720" alt="Banner" src="https://github.com/user-attachments/assets/0c0112cb-bc74-44cf-ad61-32d75c32e335" />
 
-Anya Melfissa Disable Thermal <br /> 
-By: Kanagawa Yamada <br />
+### Tip
+Use action to access Anya Control Panel
