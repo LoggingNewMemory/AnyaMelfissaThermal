@@ -27,3 +27,5 @@ get_properties | while read -r prop; do
         fi
     fi
 done
+
+find /sys/devices/virtual/thermal/thermal_zone*/mode -type f -exec sh -c 'echo disabled > "$1" && chmod 444 "$1"' _ {} \;

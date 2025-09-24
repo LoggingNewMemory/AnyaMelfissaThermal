@@ -18,3 +18,5 @@ get_properties | while read -r prop; do
         start "$service"
     fi
 done
+
+find /sys/devices/virtual/thermal/thermal_zone*/mode -type f -exec sh -c 'chmod 644 "$1" && echo enabled > "$1"' _ {} \;
