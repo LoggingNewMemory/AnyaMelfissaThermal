@@ -13,19 +13,7 @@ get_properties | while read -r prop; do
         status=$(getprop "$prop")
         if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
             service=${prop:9}
-            setprop ctl.stop "$service"
+            resetprop -n stopped "$service"
         fi
     fi
 done
-
-get_properties | while read -r prop; do
-    if [ -n "$prop" ]; then
-        status=$(getprop "$prop")
-        if [ "$status" = "running" ] || [ "$status" = "restarting" ]; then
-            service=${prop:9}
-            stop "$service"
-        fi
-    fi
-done
-
-find /sys/devices/virtual/thermal/thermal_zone*/mode -type f -exec sh -c 'echo disabled > "$1" && chmod 444 "$1"' _ {} \;

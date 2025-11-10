@@ -8,15 +8,6 @@ get_properties() {
 get_properties | while read -r prop; do
     if [[ -n "$prop" && "$prop" == init.svc.* ]]; then
         service=${prop:9}
-        setprop ctl.start "$service"
+        resetprop -n running "$service"
     fi
 done
-
-get_properties | while read -r prop; do
-    if [[ -n "$prop" && "$prop" == init.svc.* ]]; then
-        service=${prop:9}
-        start "$service"
-    fi
-done
-
-find /sys/devices/virtual/thermal/thermal_zone*/mode -type f -exec sh -c 'chmod 644 "$1" && echo enabled > "$1"' _ {} \;
