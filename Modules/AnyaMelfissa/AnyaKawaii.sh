@@ -1,82 +1,92 @@
 #!/system/bin/sh
 #
 # AnyaKawaii - Restore/Enable Thermal
-# Reverses the actions of AnyaMelfissa to re-enable thermal throttling and management.
+# Optimized by Kanagawa Yamada
+#
+# Optimization: Parallel Restore + AnyaMelfissa "Broad Spoof" Logic
 
-# Helper function to write values safely
+# ----------------- HELPER FUNCTIONS -----------------
+
 write_val() {
-    local file="$1"
-    local value="$2"
-    if [ -e "$file" ]; then
-        chmod 644 "$file" 2>/dev/null
-        echo "$value" > "$file"
-    fi
+    [ -e "$1" ] && echo "$2" > "$1" 2>/dev/null
 }
 
-# 1. Unmount blocked binaries (CRITICAL)
-umount /vendor/bin/hw/thermal-hal-2-0 2>/dev/null
-umount /vendor/bin/thermald 2>/dev/null
+# ----------------- ASYNC MODULES -----------------
 
-# 2. Restore Permissions (Reverse chmod 000)
-restore_perms() {
-    find "$1" -name '*temp*' -o -name '*trip_point_*' -o -name '*type*' -o -name '*thermal*' | while read -r file; do
-        if [ -d "$file" ]; then
-            chmod 755 "$file"
-        else
-            chmod 644 "$file"
+# Module 1: Filesystem & Permissions
+restore_filesystem() {
+    # 1. Unmount blocked binaries
+    umount /vendor/bin/hw/thermal-hal-2-0 2>/dev/null
+    umount /vendor/bin/thermald 2>/dev/null
+
+    # 2. Batch Restore Permissions (Files -> 644, Dirs -> 755)
+    find /sys/devices/virtual/thermal/thermal_zone*/ \
+         /sys/firmware/devicetree/base/soc/*/ \
+         \( -name '*temp*' -o -name '*trip_point_*' -o -name '*type*' -o -name '*thermal*' \) \
+         -type f -exec chmod 644 {} + 2>/dev/null
+
+    find /sys/devices/virtual/thermal/thermal_zone*/ \
+         -type d -exec chmod 755 {} + 2>/dev/null
+
+    # 3. Restore Hwmon permissions
+    chmod -R 755 /sys/devices/virtual/hwmon/hwmon* 2>/dev/null
+    find /sys/devices/virtual/hwmon/hwmon* -type f -exec chmod 644 {} + 2>/dev/null
+}
+
+# Module 2: Hardware & Kernel Controls
+restore_hardware() {
+    # 1. Re-enable Thermal Modes
+    for thermmode in /sys/devices/virtual/thermal/thermal_zone*/mode; do
+        write_val "$thermmode" "enabled"
+    done
+
+    # 2. Re-enable CPU Core Control
+    for cpu in /sys/devices/system/cpu/cpu*/core_ctl/enable; do
+        write_val "$cpu" "1"
+    done
+
+    # 3. Re-enable MSM Thermal
+    find /sys/ -name enabled | grep 'msm_thermal' | while read -r msm; do
+        write_val "$msm" "Y"
+        write_val "$msm" "1"
+    done
+
+    # 4. Re-enable GPU Throttling
+    for kgsl in /sys/class/kgsl/kgsl-3d0; do
+        if [ -d "$kgsl" ]; then
+            write_val "$kgsl/throttling" "1"
+            write_val "$kgsl/thermal_pwrlevel" "1" 
         fi
     done
 }
 
-restore_perms "/sys/devices/virtual/thermal/thermal_zone*/"
-restore_perms "/sys/firmware/devicetree/base/soc/*/"
-chmod -R 755 /sys/devices/virtual/hwmon/hwmon* 2>/dev/null
-chmod -R 644 /sys/devices/virtual/hwmon/hwmon*/* 2>/dev/null
+# ----------------- MAIN EXECUTION -----------------
 
-# 3. Re-enable Thermal Modes
-for thermmode in /sys/devices/virtual/thermal/thermal_zone*/mode; do
-    write_val "$thermmode" "enabled"
-done
+main() {
+    # 1. Run Restore Operations in Parallel
+    (restore_filesystem) &
+    (restore_hardware) &
+    wait
 
-# 4. Re-enable Kernel & CPU Thermal Controls
-# Re-enable core_ctl (Hotplugging)
-for cpu in /sys/devices/system/cpu/cpu[0,4,7]/core_ctl; do
-    write_val "$cpu/enable" "1"
-done
+    # 2. Restore Android Thermal Service Internal Status
+    cmd thermalservice override-status 1 2>/dev/null
+    cmd thermalservice reset 2>/dev/null
 
-# Re-enable MSM Thermal if present
-find /sys/ -name enabled | grep 'msm_thermal' | while read -r msm_thermal_status; do
-    write_val "$msm_thermal_status" "Y"
-    write_val "$msm_thermal_status" "1"
-done
+    # 3. Start Services
+    # We attempt to start them genuinely first
+    getprop | grep -E 'init.svc(\.vendor)?\.thermal' | cut -d: -f1 | sed 's/init.svc.//g' | tr -d '[]' | while read -r svc; do
+        resetprop -n "init.svc.$svc" "stopped"
+        start "$svc"
+        setprop ctl.start "$svc"
+    done
 
-# Re-enable GPU Throttling/Governance
-for kgsl in /sys/class/kgsl/kgsl-3d0; do
-    if [ -d "$kgsl" ]; then
-        write_val "$kgsl/throttling" "1"
-        write_val "$kgsl/thermal_pwrlevel" "1" 
-    fi
-done
-
-# 5. Restore Android Thermal Service
-cmd thermalservice override-status 1 2>/dev/null
-cmd thermalservice reset 2>/dev/null
-
-# 6. Restart Thermal Services (The Real Fix)
-get_thermal_services() {
-    getprop | grep -E 'init.svc(\.vendor)?\.thermal' | cut -d: -f1 | sed 's/init.svc.//g' | tr -d '[]'
+    getprop | grep 'thermal' | cut -d '[' -f2 | cut -d ']' -f1 | while read -r prop; do
+        if [ -n "$prop" ]; then
+            resetprop -n "$prop" "running"
+        fi
+    done
 }
 
-for svc in $(get_thermal_services); do
-    # Reset status and attempt start
-    resetprop -n "init.svc.$svc" "stopped"
-    start "$svc"
-    setprop ctl.start "$svc"
-done
-
-# 7. Finalize Status
-# Wait briefly for services to initialize, then force 'running' status
-sleep 1
-for svc in $(get_thermal_services); do
-    resetprop -n "init.svc.$svc" "running"
-done
+# Execute
+main
+exit 0
