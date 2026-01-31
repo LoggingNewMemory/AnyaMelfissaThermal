@@ -1,4 +1,4 @@
-<img width="1280" height="720" alt="Banner" src="https://github.com/user-attachments/assets/0c0112cb-bc74-44cf-ad61-32d75c32e335" />
+<img width="1280" height="720" alt="Banner" src="https://github.com/user-attachments/assets/e2316574-836b-4606-bbf5-216bfb0196da" />
 
 ### Tip
 Use action to access Anya Control Panel
