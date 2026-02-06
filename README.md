@@ -2,3 +2,9 @@
 
 ### Tip
 Use action to access Anya Control Panel
+
+### WARNING 
+Cannot use getprop | grep thermal anymore to check due to spoof thermal running 
+
+Use
+> ps -A | grep -i thermal
