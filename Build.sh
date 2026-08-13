@@ -46,6 +46,9 @@ build_modules() {
             echo "Error during C compilation. Aborting."
             exit 1
         fi
+        
+        mv Modules/Compiled/AnyaMelfissa Modules/AnyaMelfissa/AnyaMelfissa
+        rm -rf Modules/Compiled
     fi
 
     cd "$MODULES_DIR" || exit 1
