@@ -21,10 +21,9 @@ static void spoof_thermal_props(const char *state) {
 // Anya Kawaii (Restore thermals)
 // ==========================================
 void exec_anya_kawaii() {
-    // Unmount thermald & HALs
-    system("umount /vendor/bin/thermald 2>/dev/null; "
-           "for hal in /vendor/bin/hw/*thermal*; do "
-           "  if [ -f \"$hal\" ]; then umount \"$hal\" 2>/dev/null; fi; "
+    // Unmount all blocked thermal binaries
+    system("awk '{print $2}' /proc/mounts | grep 'thermal' | while read -r mnt; do "
+           "  umount \"$mnt\" 2>/dev/null; "
            "done; "
            "rm -f /data/local/tmp/empty_thermal 2>/dev/null");
 
@@ -46,11 +45,13 @@ void exec_anya_kawaii() {
 // Anya Melfissa (Kill thermals)
 // ==========================================
 void exec_anya_melfissa() {
-    // 1. Block binaries first so they cannot be restarted by init
+    // 1. Block ALL running thermal binaries so they cannot be restarted by init
     system("touch /data/local/tmp/empty_thermal 2>/dev/null; "
-           "mount -o bind /data/local/tmp/empty_thermal /vendor/bin/thermald 2>/dev/null; "
-           "for hal in /vendor/bin/hw/*thermal*; do "
-           "  if [ -f \"$hal\" ]; then mount -o bind /data/local/tmp/empty_thermal \"$hal\" 2>/dev/null; fi; "
+           "for p in $(pgrep -l 'thermal' | cut -d' ' -f1); do "
+           "  exe=$(readlink -f /proc/$p/exe 2>/dev/null); "
+           "  if [ -n \"$exe\" ] && [ -f \"$exe\" ]; then "
+           "    mount -o bind /data/local/tmp/empty_thermal \"$exe\" 2>/dev/null; "
+           "  fi; "
            "done; "
            "rm -f /data/vendor/thermal/config /data/vendor/thermal/*.dump 2>/dev/null");
 
