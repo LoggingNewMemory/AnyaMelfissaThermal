@@ -16,18 +16,13 @@
 
 #define DUMMY_FILE "/data/local/tmp/empty_thermal"
 
-// Helper to write an empty dummy file
+// To create a dummy file for hard to kill thermal
 void create_dummy_file() {
     int fd = open(DUMMY_FILE, O_CREAT | O_WRONLY, 0644);
     if (fd >= 0) close(fd);
 }
 
-// ---------------------------------------------------------
-// Native Syscalls
-// ---------------------------------------------------------
-
-// Natively find and block all thermal processes
-void native_block_and_kill_thermals() {
+void block_kill() {
     DIR *dir = opendir("/proc");
     if (!dir) return;
 
@@ -44,7 +39,7 @@ void native_block_and_kill_thermals() {
             FILE *f = fopen(path, "r");
             if (f) {
                 if (fgets(comm, sizeof(comm), f)) {
-                    comm[strcspn(comm, "\n")] = 0; // Remove newline
+                    comm[strcspn(comm, "\n")] = 0;
                     
                     if (strstr(comm, "thermal") != NULL) {
                         char exe_link[256];
@@ -54,11 +49,9 @@ void native_block_and_kill_thermals() {
                         ssize_t len = readlink(exe_link, exe_target, sizeof(exe_target) - 1);
                         if (len != -1) {
                             exe_target[len] = '\0';
-                            // Native Bind Mount
                             mount(DUMMY_FILE, exe_target, NULL, MS_BIND, NULL);
                         }
                         
-                        // Native Kill
                         kill(pid, SIGKILL);
                     }
                 }
@@ -69,8 +62,7 @@ void native_block_and_kill_thermals() {
     closedir(dir);
 }
 
-// Natively unmount all thermal bind mounts
-void native_unmount_thermals() {
+void unmount_thermals() {
     FILE *f = fopen("/proc/mounts", "r");
     if (!f) return;
 
@@ -90,9 +82,7 @@ void native_unmount_thermals() {
     unlink(DUMMY_FILE); // Clean up dummy file
 }
 
-// ---------------------------------------------------------
-// Magisk Property Interfacing (Still requires shell for resetprop)
-// ---------------------------------------------------------
+// Spoofer for running
 
 void spoof_thermal_props(const char *state) {
     char cmd[512];
@@ -110,24 +100,17 @@ void restore_thermal_services() {
     system("(getprop | grep -E '^\\[init\\.svc\\..*thermal' | cut -d: -f1 | tr -d '[]' | sed 's/init\\.svc\\.//g' | while read -r svc; do stop \"$svc\" 2>/dev/null; resetprop -n \"init.svc.$svc\" \"stopped\" 2>/dev/null; start \"$svc\" 2>/dev/null; done) &");
 }
 
-void spoof_other_props() {
-    system("(for prop in $(getprop | grep -E 'sys\\..*thermal|thermal_config' | cut -d: -f1 | tr -d '[]'); do resetprop -n \"$prop\" \"0\"; done; "
-           "resetprop debug.thermal.throttle.support 2>/dev/null | grep -q 'yes' && resetprop -n debug.thermal.throttle.support no) &");
-}
-
-// ==========================================
 // Execution
-// ==========================================
+
 void exec_anya_kawaii() {
-    native_unmount_thermals();
+    unmount_thermals();
     restore_thermal_services();
     spoof_thermal_props("running");
 }
 
 void exec_anya_melfissa() {
-    native_block_and_kill_thermals();
+    block_kill();
     stop_thermal_services();
-    spoof_other_props();
     spoof_thermal_props("running");
 }
 
