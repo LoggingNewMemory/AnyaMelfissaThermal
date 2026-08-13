@@ -1,0 +1,80 @@
+/*
+ * Anya Melfissa - Disable Thermal
+ * Standalone C Implementation
+ * Copyright (C) 2026 Kanagawa Yamada
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+// Spoof thermal properties
+static void spoof_thermal_props(const char *state) {
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd),
+        "getprop | grep -E '^\\[init\\.svc\\..*thermal' | grep -v -iE 'hal|hardware\\.thermal' | cut -d'[' -f2 | cut -d']' -f1 | "
+        "while read -r prop; do [ -n \"$prop\" ] && resetprop -n \"$prop\" \"%s\"; done", state);
+    system(cmd);
+}
+
+// ==========================================
+// Anya Kawaii (Restore thermals)
+// ==========================================
+void exec_anya_kawaii() {
+    // Unmount thermald
+    system("umount /vendor/bin/thermald 2>/dev/null");
+
+    // Enable msm_thermal
+    system("find /sys/ -name enabled 2>/dev/null | grep 'msm_thermal' | while read -r msm; do "
+           "echo 'Y' > \"$msm\" 2>/dev/null; "
+           "echo '1' > \"$msm\" 2>/dev/null; "
+           "done");
+
+    // Restart thermal services
+    system("getprop | grep -E '^\\[init\\.svc\\..*thermal' | grep -v -iE 'hal|hardware\\.thermal' | "
+           "cut -d: -f1 | tr -d '[]' | sed 's/init\\.svc\\.//g' | "
+           "while read -r svc; do resetprop -n \"init.svc.$svc\" \"stopped\"; start \"$svc\"; done");
+
+    spoof_thermal_props("running");
+}
+
+// ==========================================
+// Anya Melfissa (Kill thermals)
+// ==========================================
+void exec_anya_melfissa() {
+    // Kill & stop all thermal processes and services
+    system("getprop | grep -E '^\\[init\\.svc\\..*thermal' | grep -v -iE 'hal|hardware\\.thermal' | "
+           "cut -d: -f1 | tr -d '[]' | sed 's/init\\.svc\\.//g' | "
+           "while read -r svc; do stop \"$svc\"; done; "
+           "killall -9 thermald 2>/dev/null; "
+           "pgrep -l 'thermal' | grep -v -iE 'hal|hardware\\.thermal' | cut -d' ' -f1 | xargs -r kill -9 2>/dev/null");
+
+    // Block thermald & clean configs
+    system("mount -o bind /dev/null /vendor/bin/thermald 2>/dev/null; "
+           "rm -f /data/vendor/thermal/config /data/vendor/thermal/*.dump 2>/dev/null");
+
+    // Disable msm_thermal
+    system("find /sys/ -name enabled 2>/dev/null | grep 'msm_thermal' | while read -r msm; do "
+           "echo 'N' > \"$msm\" 2>/dev/null; "
+           "echo '0' > \"$msm\" 2>/dev/null; "
+           "done");
+
+    // Spoof thermal props + OEM check
+    system("for prop in $(getprop | grep -E 'sys\\..*thermal|thermal_config' | grep -v -iE 'hal|hardware\\.thermal' | "
+           "cut -d: -f1 | tr -d '[]'); do resetprop -n \"$prop\" \"0\"; done; "
+           "resetprop debug.thermal.throttle.support 2>/dev/null | grep -q 'yes' && "
+           "resetprop -n debug.thermal.throttle.support no");
+
+    spoof_thermal_props("running");
+}
+
+int main(int argc, char *argv[]) {
+    if (argc > 1) {
+        if (strcmp(argv[1], "0") == 0) {
+            exec_anya_kawaii();
+        } else if (strcmp(argv[1], "1") == 0) {
+            exec_anya_melfissa();
+        }
+    }
+    return 0;
+}

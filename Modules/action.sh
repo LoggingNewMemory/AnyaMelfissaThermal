@@ -22,14 +22,14 @@ while true; do
 
   if echo "$EVENT" | grep -q "KEY_VOLUMEUP.*DOWN"; then
     ui_print "Disabling Thermal..."
-    /data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaMelfissa.sh
+    /data/adb/modules/AnyaMelfissa/Compiled/AnyaMelfissa 1
     ui_print "Anya Melfissa!"
     ui_print "Thermal Disabled"
     break 
 
   elif echo "$EVENT" | grep -q "KEY_VOLUMEDOWN.*DOWN"; then
     ui_print "Enabling Thermal..."
-    /data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaKawaii.sh
+    /data/adb/modules/AnyaMelfissa/Compiled/AnyaMelfissa 0
     ui_print "Anya Kawaii!"
     ui_print "Thermal Enabled"
     break 
