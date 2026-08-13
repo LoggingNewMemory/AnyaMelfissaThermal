@@ -122,11 +122,37 @@ void spoof_thermal_props(const char *state) {
 }
 
 void stop_thermal_services() {
-    system("(getprop | grep -E '^\\[init\\.svc\\..*thermal' | cut -d: -f1 | tr -d '[]' | sed 's/init\\.svc\\.//g' | while read -r svc; do stop \"$svc\"; done) &");
+    const char *script = 
+        "("
+        "  getprop | "
+        "  grep -E '^\\[init\\.svc\\..*thermal' | "
+        "  cut -d: -f1 | "
+        "  tr -d '[]' | "
+        "  sed 's/init\\.svc\\.//g' | "
+        "  while read -r svc; do "
+        "      stop \"$svc\"; "
+        "  done"
+        ") &";
+
+    system(script);
 }
 
 void restore_thermal_services() {
-    system("(getprop | grep -E '^\\[init\\.svc\\..*thermal' | cut -d: -f1 | tr -d '[]' | sed 's/init\\.svc\\.//g' | while read -r svc; do stop \"$svc\" 2>/dev/null; resetprop -n \"init.svc.$svc\" \"stopped\" 2>/dev/null; start \"$svc\" 2>/dev/null; done) &");
+    const char *script = 
+        "("
+        "  getprop | "
+        "  grep -E '^\\[init\\.svc\\..*thermal' | "
+        "  cut -d: -f1 | "
+        "  tr -d '[]' | "
+        "  sed 's/init\\.svc\\.//g' | "
+        "  while read -r svc; do "
+        "      stop \"$svc\" 2>/dev/null; "
+        "      resetprop -n \"init.svc.$svc\" \"stopped\" 2>/dev/null; "
+        "      start \"$svc\" 2>/dev/null; "
+        "  done"
+        ") &";
+
+    system(script);
 }
 
 // Execution
