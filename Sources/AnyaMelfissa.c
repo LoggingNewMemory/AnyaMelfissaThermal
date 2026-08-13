@@ -12,7 +12,7 @@
 static void spoof_thermal_props(const char *state) {
     char cmd[512];
     snprintf(cmd, sizeof(cmd),
-        "getprop | grep -E '^\\[init\\.svc\\..*thermal' | grep -v -iE 'hal|hardware\\.thermal' | cut -d'[' -f2 | cut -d']' -f1 | "
+        "getprop | grep -E '^\\[init\\.svc\\..*thermal' | cut -d'[' -f2 | cut -d']' -f1 | "
         "while read -r prop; do [ -n \"$prop\" ] && resetprop -n \"$prop\" \"%s\"; done", state);
     system(cmd);
 }
@@ -21,8 +21,12 @@ static void spoof_thermal_props(const char *state) {
 // Anya Kawaii (Restore thermals)
 // ==========================================
 void exec_anya_kawaii() {
-    // Unmount thermald
-    system("umount /vendor/bin/thermald 2>/dev/null");
+    // Unmount thermald & HALs
+    system("umount /vendor/bin/thermald 2>/dev/null; "
+           "for hal in /vendor/bin/hw/*thermal*; do "
+           "  if [ -f \"$hal\" ]; then umount \"$hal\" 2>/dev/null; fi; "
+           "done; "
+           "rm -f /data/local/tmp/empty_thermal 2>/dev/null");
 
     // Enable msm_thermal
     system("find /sys/ -name enabled 2>/dev/null | grep 'msm_thermal' | while read -r msm; do "
@@ -30,10 +34,10 @@ void exec_anya_kawaii() {
            "echo '1' > \"$msm\" 2>/dev/null; "
            "done");
 
-    // Restart thermal services
-    system("getprop | grep -E '^\\[init\\.svc\\..*thermal' | grep -v -iE 'hal|hardware\\.thermal' | "
+    // Restart thermal services safely (Stop first to kill rogue processes, clear spoof, then start)
+    system("getprop | grep -E '^\\[init\\.svc\\..*thermal' | "
            "cut -d: -f1 | tr -d '[]' | sed 's/init\\.svc\\.//g' | "
-           "while read -r svc; do resetprop -n \"init.svc.$svc\" \"stopped\"; start \"$svc\"; done");
+           "while read -r svc; do stop \"$svc\" 2>/dev/null; resetprop -n \"init.svc.$svc\" \"stopped\" 2>/dev/null; start \"$svc\" 2>/dev/null; done");
 
     spoof_thermal_props("running");
 }
@@ -42,16 +46,20 @@ void exec_anya_kawaii() {
 // Anya Melfissa (Kill thermals)
 // ==========================================
 void exec_anya_melfissa() {
-    // Kill & stop all thermal processes and services
-    system("getprop | grep -E '^\\[init\\.svc\\..*thermal' | grep -v -iE 'hal|hardware\\.thermal' | "
+    // 1. Block binaries first so they cannot be restarted by init
+    system("touch /data/local/tmp/empty_thermal 2>/dev/null; "
+           "mount -o bind /data/local/tmp/empty_thermal /vendor/bin/thermald 2>/dev/null; "
+           "for hal in /vendor/bin/hw/*thermal*; do "
+           "  if [ -f \"$hal\" ]; then mount -o bind /data/local/tmp/empty_thermal \"$hal\" 2>/dev/null; fi; "
+           "done; "
+           "rm -f /data/vendor/thermal/config /data/vendor/thermal/*.dump 2>/dev/null");
+
+    // 2. Kill & stop all thermal processes and services
+    system("getprop | grep -E '^\\[init\\.svc\\..*thermal' | "
            "cut -d: -f1 | tr -d '[]' | sed 's/init\\.svc\\.//g' | "
            "while read -r svc; do stop \"$svc\"; done; "
            "killall -9 thermald 2>/dev/null; "
-           "pgrep -l 'thermal' | grep -v -iE 'hal|hardware\\.thermal' | cut -d' ' -f1 | xargs -r kill -9 2>/dev/null");
-
-    // Block thermald & clean configs
-    system("mount -o bind /dev/null /vendor/bin/thermald 2>/dev/null; "
-           "rm -f /data/vendor/thermal/config /data/vendor/thermal/*.dump 2>/dev/null");
+           "pgrep -l 'thermal' | cut -d' ' -f1 | xargs -r kill -9 2>/dev/null");
 
     // Disable msm_thermal
     system("find /sys/ -name enabled 2>/dev/null | grep 'msm_thermal' | while read -r msm; do "
@@ -60,7 +68,7 @@ void exec_anya_melfissa() {
            "done");
 
     // Spoof thermal props + OEM check
-    system("for prop in $(getprop | grep -E 'sys\\..*thermal|thermal_config' | grep -v -iE 'hal|hardware\\.thermal' | "
+    system("for prop in $(getprop | grep -E 'sys\\..*thermal|thermal_config' | "
            "cut -d: -f1 | tr -d '[]'); do resetprop -n \"$prop\" \"0\"; done; "
            "resetprop debug.thermal.throttle.support 2>/dev/null | grep -q 'yes' && "
            "resetprop -n debug.thermal.throttle.support no");
