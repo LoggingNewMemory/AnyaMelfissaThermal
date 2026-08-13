@@ -33,29 +33,58 @@ void block_kill() {
         int pid = atoi(ent->d_name);
         if (pid > 0) {
             char path[256];
-            char comm[256];
+            char comm[256] = {0};
+            char cmdline[1024] = {0};
+            int is_thermal = 0;
+
             snprintf(path, sizeof(path), "/proc/%d/comm", pid);
-            
             FILE *f = fopen(path, "r");
             if (f) {
                 if (fgets(comm, sizeof(comm), f)) {
                     comm[strcspn(comm, "\n")] = 0;
-                    
                     if (strstr(comm, "thermal") != NULL) {
-                        char exe_link[256];
-                        char exe_target[512];
-                        snprintf(exe_link, sizeof(exe_link), "/proc/%d/exe", pid);
-                        
-                        ssize_t len = readlink(exe_link, exe_target, sizeof(exe_target) - 1);
-                        if (len != -1) {
-                            exe_target[len] = '\0';
-                            mount(DUMMY_FILE, exe_target, NULL, MS_BIND, NULL);
-                        }
-                        
-                        kill(pid, SIGKILL);
+                        is_thermal = 1;
                     }
                 }
                 fclose(f);
+            }
+
+            if (!is_thermal) {
+                snprintf(path, sizeof(path), "/proc/%d/cmdline", pid);
+                f = fopen(path, "r");
+                if (f) {
+                    size_t n = fread(cmdline, 1, sizeof(cmdline) - 1, f);
+                    if (n > 0) {
+                        cmdline[n] = 0;
+                        if (strstr(cmdline, "thermal") != NULL) {
+                            is_thermal = 1;
+                        }
+                    }
+                    fclose(f);
+                }
+            }
+
+            if (is_thermal) {
+                char exe_link[256];
+                char exe_target[512] = {0};
+                int is_app = 0;
+
+                snprintf(exe_link, sizeof(exe_link), "/proc/%d/exe", pid);
+                ssize_t len = readlink(exe_link, exe_target, sizeof(exe_target) - 1);
+                if (len != -1) {
+                    exe_target[len] = '\0';
+                    if (strstr(exe_target, "app_process") != NULL) {
+                        is_app = 1;
+                    } else {
+                        mount(DUMMY_FILE, exe_target, NULL, MS_BIND, NULL);
+                    }
+                }
+                
+                if (is_app) {
+                    kill(pid, SIGSTOP); // Freeze app processes to prevent restart
+                } else {
+                    kill(pid, SIGKILL); // Kill native services
+                }
             }
         }
     }
@@ -102,8 +131,57 @@ void restore_thermal_services() {
 
 // Execution
 
+void resume_frozen_processes() {
+    DIR *dir = opendir("/proc");
+    if (!dir) return;
+
+    struct dirent *ent;
+    while ((ent = readdir(dir)) != NULL) {
+        int pid = atoi(ent->d_name);
+        if (pid > 0) {
+            char path[256];
+            char comm[256] = {0};
+            char cmdline[1024] = {0};
+            int is_thermal = 0;
+
+            snprintf(path, sizeof(path), "/proc/%d/comm", pid);
+            FILE *f = fopen(path, "r");
+            if (f) {
+                if (fgets(comm, sizeof(comm), f)) {
+                    comm[strcspn(comm, "\n")] = 0;
+                    if (strstr(comm, "thermal") != NULL) {
+                        is_thermal = 1;
+                    }
+                }
+                fclose(f);
+            }
+
+            if (!is_thermal) {
+                snprintf(path, sizeof(path), "/proc/%d/cmdline", pid);
+                f = fopen(path, "r");
+                if (f) {
+                    size_t n = fread(cmdline, 1, sizeof(cmdline) - 1, f);
+                    if (n > 0) {
+                        cmdline[n] = 0;
+                        if (strstr(cmdline, "thermal") != NULL) {
+                            is_thermal = 1;
+                        }
+                    }
+                    fclose(f);
+                }
+            }
+
+            if (is_thermal) {
+                kill(pid, SIGCONT);
+            }
+        }
+    }
+    closedir(dir);
+}
+
 void exec_anya_kawaii() {
     unmount_thermals();
+    resume_frozen_processes();
     restore_thermal_services();
     spoof_thermal_props("running");
 }
