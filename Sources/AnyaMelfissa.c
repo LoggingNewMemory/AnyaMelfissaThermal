@@ -67,10 +67,6 @@ void native_block_and_kill_thermals() {
         }
     }
     closedir(dir);
-    
-    // Native File Deletion
-    unlink("/data/vendor/thermal/config");
-    system("rm -f /data/vendor/thermal/*.dump 2>/dev/null &");
 }
 
 // Natively unmount all thermal bind mounts
