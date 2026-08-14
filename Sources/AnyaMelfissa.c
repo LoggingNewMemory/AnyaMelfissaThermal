@@ -13,6 +13,7 @@ Copyright (C) 2026 Kanagawa Yamada
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/system_properties.h>
 
 #define DUMMY_FILE "/data/local/tmp/empty_thermal"
 
@@ -111,48 +112,59 @@ void unmount_thermals() {
     unlink(DUMMY_FILE); // Clean up dummy file
 }
 
-// Spoofer for running
+// Struct to pass arguments into the property callback
+struct thermal_callback_data {
+    int action;
+    const char *state;
+};
+
+// Callback to read the actual name and value of a property
+static void read_prop_callback(void *cookie, const char *name, const char *value, uint32_t serial) {
+    struct thermal_callback_data *data = (struct thermal_callback_data *)cookie;
+    
+    // Look for init services with "thermal" in the name
+    if (strncmp(name, "init.svc.", 9) == 0 && strstr(name, "thermal") != NULL) {
+        const char *svc_name = name + 9; // Skip "init.svc." prefix
+        char cmd[256];
+
+        if (data->action == 0 && data->state != NULL) { // Spoof
+            snprintf(cmd, sizeof(cmd), "resetprop -n \"init.svc.%s\" \"%s\"", svc_name, data->state);
+            system(cmd);
+        } else if (data->action == 1) { // Stop
+            snprintf(cmd, sizeof(cmd), "stop \"%s\"", svc_name);
+            system(cmd);
+        } else if (data->action == 2) { // Restore
+            snprintf(cmd, sizeof(cmd), "stop \"%s\" >/dev/null 2>&1", svc_name);
+            system(cmd);
+            snprintf(cmd, sizeof(cmd), "resetprop -n \"init.svc.%s\" \"stopped\" >/dev/null 2>&1", svc_name);
+            system(cmd);
+            snprintf(cmd, sizeof(cmd), "start \"%s\" >/dev/null 2>&1", svc_name);
+            system(cmd);
+        }
+    }
+}
+
+// Callback for iterating through all properties
+static void iterate_prop_callback(const prop_info *pi, void *cookie) {
+    __system_property_read_callback(pi, read_prop_callback, cookie);
+}
+
+// Helper to manage thermal services using Android's native property shared memory
+void process_thermal_services(int action, const char *state) {
+    struct thermal_callback_data data = { action, state };
+    __system_property_foreach(iterate_prop_callback, &data);
+}
 
 void spoof_thermal_props(const char *state) {
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd),
-        "(getprop | grep -E '^\\[init\\.svc\\..*thermal' | cut -d'[' -f2 | cut -d']' -f1 | "
-        "while read -r prop; do [ -n \"$prop\" ] && resetprop -n \"$prop\" \"%s\"; done) &", state);
-    system(cmd);
+    process_thermal_services(0, state);
 }
 
 void stop_thermal_services() {
-    const char *script = 
-        "("
-        "  getprop | "
-        "  grep -E '^\\[init\\.svc\\..*thermal' | "
-        "  cut -d: -f1 | "
-        "  tr -d '[]' | "
-        "  sed 's/init\\.svc\\.//g' | "
-        "  while read -r svc; do "
-        "      stop \"$svc\"; "
-        "  done"
-        ") &";
-
-    system(script);
+    process_thermal_services(1, NULL);
 }
 
 void restore_thermal_services() {
-    const char *script = 
-        "("
-        "  getprop | "
-        "  grep -E '^\\[init\\.svc\\..*thermal' | "
-        "  cut -d: -f1 | "
-        "  tr -d '[]' | "
-        "  sed 's/init\\.svc\\.//g' | "
-        "  while read -r svc; do "
-        "      stop \"$svc\" 2>/dev/null; "
-        "      resetprop -n \"init.svc.$svc\" \"stopped\" 2>/dev/null; "
-        "      start \"$svc\" 2>/dev/null; "
-        "  done"
-        ") &";
-
-    system(script);
+    process_thermal_services(2, NULL);
 }
 
 // Execution

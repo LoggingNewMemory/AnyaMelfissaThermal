@@ -4,8 +4,8 @@
 # Compile C files using Android NDK
 # ==========================================
 
-export NDK=/opt/android-ndk
-export API=28
+export NDK=/home/yamada/Android/Sdk/ndk/28.2.13676358
+export API=30
 TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
 
 SRC_DIR="Sources"
