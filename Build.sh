@@ -5,8 +5,8 @@
 # Remove this for interactive mode
 # 1 = Enable | 0 = Disable
 #========================
-export MODULEVERSION="Keris 8.0"
-export FLASHTODEVICE="0"
+export MODULEVERSION="8.0"
+export FLASHTODEVICE="1"
 export SENDTOTELEGRAM="0"
 
 MODULES_DIR="Modules"

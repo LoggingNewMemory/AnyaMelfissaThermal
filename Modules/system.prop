@@ -1,6 +1,0 @@
-# From Celestial Thermal
-
-ro.vendor.dfps.enable=false
-ro.vendor.smart_dfps.enable=false
-
-ro.vendor.mtk_thermal_2_0=0
