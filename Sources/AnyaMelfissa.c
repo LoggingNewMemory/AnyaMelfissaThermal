@@ -68,17 +68,13 @@ struct thermal_callback_data {
 };
 
 static void read_prop_callback(void *cookie, const char *name, const char *value, uint32_t serial) {
+    (void)value;
+    (void)serial;
     struct thermal_callback_data *data = (struct thermal_callback_data *)cookie;
     
     if (strncmp(name, "init.svc.", 9) == 0 && strstr(name, "thermal") != NULL) {
         const char *svc_name = name + 9;
         
-        // Exclude Android's native thermalserviced
-        if (strcmp(svc_name, "thermalserviced") == 0) return;
-        
-        // Exclude thermal HAL to prevent system freezes
-        if (strstr(svc_name, "hardware.thermal") != NULL) return;
-
         char cmd[256];
         if (data->action == 3) { // Restart
             snprintf(cmd, sizeof(cmd), "stop \"%s\"; start \"%s\" >/dev/null 2>&1", svc_name, svc_name);
@@ -91,19 +87,19 @@ static void iterate_prop_callback(const prop_info *pi, void *cookie) {
     __system_property_read_callback(pi, read_prop_callback, cookie);
 }
 
-void restart_thermal_services() {
+void restart_init_services() {
     struct thermal_callback_data data = { 3 };
     __system_property_foreach(iterate_prop_callback, &data);
 }
 
 void exec_anya_kawaii() {
     restore_temperatures();
-    restart_thermal_services();
+    restart_init_services();
 }
 
 void exec_anya_melfissa() {
     spoof_temperatures();
-    restart_thermal_services();
+    restart_init_services();
 }
 
 int main(int argc, char *argv[]) {
