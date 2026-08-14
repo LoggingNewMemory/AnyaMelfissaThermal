@@ -35,7 +35,7 @@ fun Page1(
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = "Anya Melfissa\nDisable Thermal",
+                text = "Anya Melfissa\nThermal",
                 style = MaterialTheme.typography.titleLarge.copy(fontSize = 42.sp, lineHeight = 48.sp),
                 color = Color.White,
                 fontWeight = FontWeight.Black
@@ -54,7 +54,7 @@ fun Page1(
         
         Spacer(modifier = Modifier.height(32.dp))
         
-        // Disable Thermal Switch
+        // Thermal Switch
         Card(
             colors = CardDefaults.cardColors(containerColor = Color(0xFF6D5257).copy(alpha = 0.8f)),
             shape = RoundedCornerShape(16.dp),
@@ -69,7 +69,7 @@ fun Page1(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Disable Thermal", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Thermal", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Switch(
                     checked = disableThermal,
                     onCheckedChange = { isChecked ->

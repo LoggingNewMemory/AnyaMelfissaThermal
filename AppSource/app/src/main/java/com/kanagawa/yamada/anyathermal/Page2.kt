@@ -58,7 +58,7 @@ fun Page2(coroutineScope: CoroutineScope) {
             ) {
                 Column {
                     Text("Apply On Boot", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("Disable Thermal On Boot", color = Color.LightGray, fontSize = 14.sp)
+                    Text("Thermal On Boot", color = Color.LightGray, fontSize = 14.sp)
                 }
                 Switch(
                     checked = applyOnBoot,

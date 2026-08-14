@@ -1,7 +1,7 @@
 LATESTARTSERVICE=true
 
 ui_print "------------------------------------"
-ui_print "    ANYA MELFISSA DISABLE THERMAL   "
+ui_print "       ANYA MELFISSA THERMAL        "
 ui_print "------------------------------------"
 ui_print "         By: Kanagawa Yamada        "
 ui_print "------------------------------------"
@@ -23,7 +23,7 @@ ui_print " "
 ui_print "------------------------------------"
 ui_print "            MODULE INFO             "
 ui_print "------------------------------------"
-ui_print "Name : Anya Melfissa Disable Thermal"
+ui_print "Name : Anya Melfissa Thermal"
 ui_print "Version : 8.0"
 ui_print " "
 
