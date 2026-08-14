@@ -127,17 +127,10 @@ static void read_prop_callback(void *cookie, const char *name, const char *value
         const char *svc_name = name + 9; // Skip "init.svc." prefix
         char cmd[256];
 
-        if (data->action == 0 && data->state != NULL) { // Spoof
-            snprintf(cmd, sizeof(cmd), "resetprop -n \"init.svc.%s\" \"%s\"", svc_name, data->state);
-            system(cmd);
-        } else if (data->action == 1) { // Stop
+        if (data->action == 1) { // Stop
             snprintf(cmd, sizeof(cmd), "stop \"%s\"", svc_name);
             system(cmd);
         } else if (data->action == 2) { // Restore
-            snprintf(cmd, sizeof(cmd), "stop \"%s\" >/dev/null 2>&1", svc_name);
-            system(cmd);
-            snprintf(cmd, sizeof(cmd), "resetprop -n \"init.svc.%s\" \"stopped\" >/dev/null 2>&1", svc_name);
-            system(cmd);
             snprintf(cmd, sizeof(cmd), "start \"%s\" >/dev/null 2>&1", svc_name);
             system(cmd);
         }
@@ -153,10 +146,6 @@ static void iterate_prop_callback(const prop_info *pi, void *cookie) {
 void process_thermal_services(int action, const char *state) {
     struct thermal_callback_data data = { action, state };
     __system_property_foreach(iterate_prop_callback, &data);
-}
-
-void spoof_thermal_props(const char *state) {
-    process_thermal_services(0, state);
 }
 
 void stop_thermal_services() {
@@ -221,13 +210,11 @@ void exec_anya_kawaii() {
     unmount_thermals();
     resume_frozen_processes();
     restore_thermal_services();
-    spoof_thermal_props("running");
 }
 
 void exec_anya_melfissa() {
     block_kill();
     stop_thermal_services();
-    spoof_thermal_props("running");
 }
 
 int main(int argc, char *argv[]) {
