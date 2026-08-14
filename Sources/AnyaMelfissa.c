@@ -1,8 +1,8 @@
 /*
- * Anya Melfissa - Disable Thermal
- * Pure Native POSIX C Implementation
- * Copyright (C) 2026 Kanagawa Yamada
- */
+Anya Melfissa - Disable Thermal
+Copyright (C) 2026 Kanagawa Yamada
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
