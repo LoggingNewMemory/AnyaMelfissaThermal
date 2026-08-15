@@ -5,6 +5,7 @@ import android.widget.TextClock
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.draw.blur
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,7 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -76,9 +79,6 @@ fun Page1(
     Box(modifier = Modifier.fillMaxSize()) {
         // Top bar
         Box(modifier = Modifier.fillMaxWidth().padding(top = 48.dp, end = 24.dp)) {
-            if (LocalAppTheme.current == "anya") {
-                Text("✦", color = Color(0xFFFBE4A1), fontSize = 42.sp, modifier = Modifier.align(Alignment.Center))
-            }
             AndroidView(
                 factory = { ctx ->
                     TextClock(ctx).apply {
@@ -104,28 +104,58 @@ fun Page1(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.Start
             ) {
+                val textShadow = Shadow(
+                    color = Color.Black,
+                    offset = Offset(0f, 0f),
+                    blurRadius = 23f
+                )
+
                 Text(
                     text = if (LocalAppTheme.current == "anya") "Anya Melfissa\nThermal." else "System\nThermal.",
-                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 46.sp, lineHeight = 52.sp),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 36.sp, 
+                        lineHeight = 42.sp,
+                        shadow = if (LocalAppTheme.current == "anya") textShadow else null
+                    ),
                     color = textColor,
                     fontWeight = FontWeight.Black
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "By: Kanagawa Yamada",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = 16.sp,
+                        shadow = if (LocalAppTheme.current == "anya") textShadow else null
+                    ),
                     color = textColor
                 )
-                Box(
-                    modifier = Modifier
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth(0.8f)
-                        .height(2.dp)
-                        .background(textColor)
-                )
+                
+                // Add shadow to the horizontal line by wrapping it in a Box with shadow modifier or drawing a shadow behind it
+                Box(modifier = Modifier.padding(vertical = 12.dp).fillMaxWidth(0.8f)) {
+                    if (LocalAppTheme.current == "anya") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(Color.Black)
+                                // Create the same blur effect for the line
+                                .blur(8.dp)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(textColor)
+                    )
+                }
+
                 Text(
                     text = "Version: $appVersion",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 20.sp),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = 16.sp,
+                        shadow = if (LocalAppTheme.current == "anya") textShadow else null
+                    ),
                     color = textColor
                 )
             }
