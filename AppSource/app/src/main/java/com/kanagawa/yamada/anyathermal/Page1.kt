@@ -2,7 +2,9 @@ package com.kanagawa.yamada.anyathermal
 
 import android.content.pm.PackageManager
 import android.widget.TextClock
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.*
+import androidx.compose.ui.res.painterResource
+import com.kanagawa.yamada.anyathermal.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.blur
@@ -167,10 +169,11 @@ fun Page1(
                 color = textColor,
                 fontSize = 12.sp
             )
-            Text(
-                text = "ᐱ",
-                color = textColor,
-                fontSize = 32.sp
+            Icon(
+                painter = painterResource(id = R.drawable.up),
+                contentDescription = "Swipe up",
+                tint = textColor,
+                modifier = Modifier.size(32.dp)
             )
             
             Spacer(modifier = Modifier.height(16.dp))
