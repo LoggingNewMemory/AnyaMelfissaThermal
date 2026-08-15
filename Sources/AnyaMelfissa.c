@@ -1,5 +1,5 @@
 /*
-Anya Melfissa Thermal - Anya Thermal Kernel Level Like Logic
+Anya Melfissa Thermal
 Copyright (C) 2026 Kanagawa Yamada
 */
 
