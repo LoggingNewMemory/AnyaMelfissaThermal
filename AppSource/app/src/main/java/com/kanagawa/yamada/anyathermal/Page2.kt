@@ -1,18 +1,14 @@
 package com.kanagawa.yamada.anyathermal
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,9 +18,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun Page2(coroutineScope: CoroutineScope) {
+fun Page2(
+    coroutineScope: CoroutineScope,
+    onThemeChange: (String) -> Unit
+) {
     var applyOnBoot by remember { mutableStateOf(false) }
-    var checkResult by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
@@ -34,20 +32,32 @@ fun Page2(coroutineScope: CoroutineScope) {
         }
     }
 
+    val currentTheme = LocalAppTheme.current
+    val textColor = if (currentTheme == "anya") Color.White else MaterialTheme.colorScheme.onBackground
+    val cardBgColor = if (currentTheme == "anya") Color(0xFF6D5257).copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant
+    val cardBorderColor = if (currentTheme == "anya") Color(0xFFD3A47A) else MaterialTheme.colorScheme.primary
+    
+    val selectedBtnColor = if (currentTheme == "anya") Color(0xFFEBC19B) else MaterialTheme.colorScheme.primary
+    val unselectedBtnColor = if (currentTheme == "anya") Color(0xFF4A3438) else MaterialTheme.colorScheme.surface
+    val selectedTxtColor = if (currentTheme == "anya") Color(0xFF6D5257) else MaterialTheme.colorScheme.onPrimary
+    val unselectedTxtColor = if (currentTheme == "anya") Color.White else MaterialTheme.colorScheme.onSurface
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
+        Spacer(modifier = Modifier.height(48.dp))
+
         // Apply On Boot Box
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF6D5257).copy(alpha = 0.8f)),
-            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = cardBgColor),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .border(2.dp, Color(0xFFD3A47A), RoundedCornerShape(16.dp))
+                .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
         ) {
             Row(
                 modifier = Modifier
@@ -57,10 +67,10 @@ fun Page2(coroutineScope: CoroutineScope) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Apply On Boot", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("Thermal On Boot", color = Color.LightGray, fontSize = 14.sp)
+                    Text("Apply On Boot", color = textColor, fontWeight = FontWeight.Medium, fontSize = 20.sp)
+                    Text("Apply Thermal On Boot", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp)
                 }
-                Switch(
+                CustomSwitch(
                     checked = applyOnBoot,
                     onCheckedChange = { isChecked ->
                         applyOnBoot = isChecked
@@ -68,26 +78,20 @@ fun Page2(coroutineScope: CoroutineScope) {
                             val v = if (isChecked) "1" else "0"
                             Shell.cmd("echo $v > /data/adb/modules/AnyaMelfissa/StartOnBoot.txt").exec()
                         }
-                    },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = Color(0xFFEBC19B),
-                        uncheckedThumbColor = Color.White,
-                        uncheckedTrackColor = Color.Gray
-                    )
+                    }
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         
-        // Check Thermal Service Box
+        // APP THEMES Box
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF6D5257).copy(alpha = 0.8f)),
-            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = cardBgColor),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .border(2.dp, Color(0xFFD3A47A), RoundedCornerShape(16.dp))
+                .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
         ) {
             Column(
                 modifier = Modifier
@@ -95,51 +99,54 @@ fun Page2(coroutineScope: CoroutineScope) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Check Thermal Service", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("Official Way to Check Thermal Service", color = Color.LightGray, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val res = Shell.cmd("ps -A | grep thermal").exec()
-                            val out = res.out.joinToString("\n")
-                            checkResult = if (out.isEmpty()) "No thermal service found" else out
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEBC19B)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Run Check Thermal", color = Color(0xFF4A3438), fontWeight = FontWeight.Bold)
-                }
-                
+                Text("APP THEMES", color = textColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // Console Output
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .background(Color(0xFF4A3438), RoundedCornerShape(8.dp))
-                        .border(1.dp, Color(0xFFD3A47A), RoundedCornerShape(8.dp))
-                        .padding(8.dp)
-                        .verticalScroll(rememberScrollState())
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = checkResult,
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                    )
+                    Button(
+                        onClick = { onThemeChange("anya") },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (currentTheme == "anya") selectedBtnColor else unselectedBtnColor),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f).height(48.dp)
+                    ) {
+                        Text("Anya", color = if (currentTheme == "anya") selectedTxtColor else unselectedTxtColor, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    }
+                    Button(
+                        onClick = { onThemeChange("system") },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (currentTheme == "system") selectedBtnColor else unselectedBtnColor),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f).height(48.dp)
+                    ) {
+                        Text("System", color = if (currentTheme == "system") selectedTxtColor else unselectedTxtColor, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    }
                 }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Note: Some thermal is not service based, some are \"bridge\" based or \"app\" based thermal, to do this. Some will appear do_signal_stop, it only can be stopped, not killed",
-                    color = Color.LightGray,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp
-                )
             }
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+        
+        // DISCLAIMER
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "DISCLAIMER",
+                color = textColor,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "In this new version, Anya no longer kills Thermal Services. Instead, it spoof \"temp\" on /sys/class/thermal/thermal_zone* to 30. If you ask why using this app instead of just simple WebUI. It's because now you can enable / disable Anya Thermal on your Control Center",
+                color = textColor,
+                fontSize = 16.sp,
+                lineHeight = 22.sp
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }

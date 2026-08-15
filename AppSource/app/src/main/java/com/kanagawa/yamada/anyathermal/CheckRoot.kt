@@ -6,7 +6,9 @@ import kotlinx.coroutines.withContext
 
 object CheckRoot {
     suspend fun isRooted(): Boolean = withContext(Dispatchers.IO) {
-        Shell.isAppGrantedRoot() == true
+        // Initializes the global shell and checks for root.
+        // This is universally compatible with Magisk, KernelSU, APatch, etc.
+        Shell.getShell().isRoot
     }
 
     suspend fun isThermalDisabled(): Boolean = withContext(Dispatchers.IO) {
