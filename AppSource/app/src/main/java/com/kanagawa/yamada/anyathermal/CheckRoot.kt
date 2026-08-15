@@ -12,8 +12,8 @@ object CheckRoot {
     }
 
     suspend fun isThermalDisabled(): Boolean = withContext(Dispatchers.IO) {
-        val result = Shell.cmd("ps -A | grep thermal").exec()
+        val result = Shell.cmd("mount | grep fake_temp").exec()
         val out = result.out.joinToString("\n")
-        !out.contains("thermald") && out.isNotEmpty()
+        out.isNotEmpty()
     }
 }

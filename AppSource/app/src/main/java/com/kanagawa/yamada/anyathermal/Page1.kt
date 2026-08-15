@@ -34,28 +34,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CustomSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    val bias by animateFloatAsState(if (checked) 1f else -1f, label = "switchBias")
-    val trackColor = if (LocalAppTheme.current == "anya") Color(0xFFEBC19B) else MaterialTheme.colorScheme.primary
-    val thumbColor = if (LocalAppTheme.current == "anya") Color.White else MaterialTheme.colorScheme.onPrimary
-    Box(
-        modifier = Modifier
-            .width(84.dp)
-            .height(44.dp)
-            .background(
-                color = trackColor,
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clickable { onCheckedChange(!checked) }
-            .padding(4.dp),
-        contentAlignment = BiasAlignment(horizontalBias = bias, verticalBias = 0f)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(0.5f)
-                .background(thumbColor, RoundedCornerShape(8.dp))
+    val currentTheme = LocalAppTheme.current
+    val checkedThumbColor = if (currentTheme == "anya") Color.White else MaterialTheme.colorScheme.onPrimary
+    val checkedTrackColor = if (currentTheme == "anya") Color(0xFFEBC19B) else MaterialTheme.colorScheme.primary
+    val uncheckedThumbColor = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.outline
+    val uncheckedTrackColor = if (currentTheme == "anya") Color(0xFF4A3438) else MaterialTheme.colorScheme.surfaceVariant
+
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = checkedThumbColor,
+            checkedTrackColor = checkedTrackColor,
+            uncheckedThumbColor = uncheckedThumbColor,
+            uncheckedTrackColor = uncheckedTrackColor
         )
-    }
+    )
 }
 
 @Composable
@@ -197,7 +191,7 @@ fun Page1(
                         text = if (LocalAppTheme.current == "anya") "Apply Anya Thermal" else "Apply Thermal",
                         color = textColor,
                         fontWeight = FontWeight.Medium,
-                        fontSize = 20.sp
+                        fontSize = 16.sp
                     )
                     CustomSwitch(
                         checked = disableThermal,
