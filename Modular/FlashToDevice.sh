@@ -87,7 +87,10 @@ EOF
     rm -f "$local_script"
 
     # Optional prompt to reboot the device
-    if [ -n "$FLASHTODEVICE" ]; then
+    if [ "$FLASHTODEVICE" == "1" ]; then
+        echo "Non-interactive mode: Automatically rebooting device..."
+        adb reboot
+    elif [ -n "$FLASHTODEVICE" ]; then
         echo "Non-interactive mode: Skipping device reboot."
     else
         echo ""
