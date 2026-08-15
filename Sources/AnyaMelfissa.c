@@ -37,6 +37,9 @@ void spoof_temperatures() {
             char temp_path[512];
             snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
             
+            // Unmount first in case it's already mounted to prevent stacking
+            umount2(temp_path, MNT_DETACH);
+            
             // Bind mount the fake temperature file over the real one
             mount(FAKE_TEMP_FILE, temp_path, NULL, MS_BIND, NULL);
         }
@@ -54,8 +57,8 @@ void restore_temperatures() {
             char temp_path[512];
             snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
             
-            // Unmount the fake temperature file
-            umount2(temp_path, 0);
+            // Unmount the fake temperature file with MNT_DETACH to prevent EBUSY
+            umount2(temp_path, MNT_DETACH);
         }
     }
     closedir(dir);
