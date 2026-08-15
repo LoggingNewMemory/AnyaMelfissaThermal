@@ -63,22 +63,23 @@ void restore_temperatures() {
     unlink(FAKE_TEMP_FILE);
 }
 
-struct thermal_callback_data {
-    int action;
-};
+#define MAX_SERVICES 50
+char services_to_restart[MAX_SERVICES][128];
+int num_services = 0;
 
 static void read_prop_callback(void *cookie, const char *name, const char *value, uint32_t serial) {
     (void)value;
     (void)serial;
-    struct thermal_callback_data *data = (struct thermal_callback_data *)cookie;
     
     if (strncmp(name, "init.svc.", 9) == 0 && strstr(name, "thermal") != NULL) {
         const char *svc_name = name + 9;
-        
-        char cmd[256];
-        if (data->action == 3) { // Restart
-            snprintf(cmd, sizeof(cmd), "stop \"%s\"; start \"%s\" >/dev/null 2>&1", svc_name, svc_name);
-            system(cmd);
+        for (int i = 0; i < num_services; i++) {
+            if (strcmp(services_to_restart[i], svc_name) == 0) return;
+        }
+        if (num_services < MAX_SERVICES) {
+            strncpy(services_to_restart[num_services], svc_name, 127);
+            services_to_restart[num_services][127] = '\0';
+            num_services++;
         }
     }
 }
@@ -88,8 +89,13 @@ static void iterate_prop_callback(const prop_info *pi, void *cookie) {
 }
 
 void restart_init_services() {
-    struct thermal_callback_data data = { 3 };
-    __system_property_foreach(iterate_prop_callback, &data);
+    num_services = 0;
+    __system_property_foreach(iterate_prop_callback, NULL);
+    for (int i = 0; i < num_services; i++) {
+        char cmd[256];
+        snprintf(cmd, sizeof(cmd), "stop \"%s\"; start \"%s\" >/dev/null 2>&1", services_to_restart[i], services_to_restart[i]);
+        system(cmd);
+    }
 }
 
 void exec_anya_kawaii() {
