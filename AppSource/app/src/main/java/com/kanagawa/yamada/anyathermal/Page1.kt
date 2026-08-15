@@ -38,7 +38,8 @@ fun CustomSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     val checkedThumbColor = if (currentTheme == "anya") Color.White else MaterialTheme.colorScheme.onPrimary
     val checkedTrackColor = if (currentTheme == "anya") Color(0xFFEBC19B) else MaterialTheme.colorScheme.primary
     val uncheckedThumbColor = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.outline
-    val uncheckedTrackColor = if (currentTheme == "anya") Color(0xFF4A3438) else MaterialTheme.colorScheme.surfaceVariant
+    val uncheckedTrackColor = if (currentTheme == "anya") Color(0xFF897296) else MaterialTheme.colorScheme.surfaceVariant
+    val uncheckedBorderColor = if (currentTheme == "anya") Color.Transparent else MaterialTheme.colorScheme.outline
 
     Switch(
         checked = checked,
@@ -47,7 +48,8 @@ fun CustomSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
             checkedThumbColor = checkedThumbColor,
             checkedTrackColor = checkedTrackColor,
             uncheckedThumbColor = uncheckedThumbColor,
-            uncheckedTrackColor = uncheckedTrackColor
+            uncheckedTrackColor = uncheckedTrackColor,
+            uncheckedBorderColor = uncheckedBorderColor
         )
     )
 }

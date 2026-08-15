@@ -38,7 +38,7 @@ fun Page2(
     val cardBorderColor = if (currentTheme == "anya") Color(0xFFD3A47A) else MaterialTheme.colorScheme.primary
     
     val selectedBtnColor = if (currentTheme == "anya") Color(0xFFEBC19B) else MaterialTheme.colorScheme.primary
-    val unselectedBtnColor = if (currentTheme == "anya") Color(0xFF4A3438) else MaterialTheme.colorScheme.surface
+    val unselectedBtnColor = if (currentTheme == "anya") Color(0xFF897296) else MaterialTheme.colorScheme.surface
     val selectedTxtColor = if (currentTheme == "anya") Color(0xFF6D5257) else MaterialTheme.colorScheme.onPrimary
     val unselectedTxtColor = if (currentTheme == "anya") Color.White else MaterialTheme.colorScheme.onSurface
 
