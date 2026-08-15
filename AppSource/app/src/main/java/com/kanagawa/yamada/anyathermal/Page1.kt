@@ -203,7 +203,7 @@ fun Page1(
                             coroutineScope.launch(Dispatchers.IO) {
                                 val binaryPath = "/data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaMelfissa"
                                 val arg = if (isChecked) "1" else "0"
-                                Shell.cmd("$binaryPath $arg").exec()
+                                Shell.cmd("su -M -c \"$binaryPath $arg\"").exec()
                             }
                         }
                     )
