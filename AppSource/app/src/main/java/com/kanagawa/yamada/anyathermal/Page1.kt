@@ -109,7 +109,7 @@ fun Page1(
                 )
 
                 Text(
-                    text = if (LocalAppTheme.current == "anya") "Anya Melfissa\nThermal." else "System\nThermal.",
+                    text = "Anya Melfissa Thermal",
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 36.sp, 
                         lineHeight = 42.sp,
@@ -190,7 +190,7 @@ fun Page1(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (LocalAppTheme.current == "anya") "Apply Anya Thermal" else "Apply Thermal",
+                        text = "Apply Anya Thermal",
                         color = textColor,
                         fontWeight = FontWeight.Medium,
                         fontSize = 16.sp

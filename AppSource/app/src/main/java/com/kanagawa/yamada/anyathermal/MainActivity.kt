@@ -76,21 +76,19 @@ fun MainScreen() {
                 baseModifier
             }
 
-            if (appTheme == "anya") {
-                Image(
-                    painter = painterResource(id = R.drawable.anya),
-                    contentDescription = "Background",
-                    contentScale = ContentScale.Crop,
-                    modifier = imageModifier
-                )
-                
-                // Dark overlay for readability and dimming
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = if (!isRooted && !isCheckingRoot) 0.6f else 0.2f))
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.anya),
+                contentDescription = "Background",
+                contentScale = ContentScale.Crop,
+                modifier = imageModifier
+            )
+            
+            // Dark overlay for readability and dimming
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = if (!isRooted && !isCheckingRoot) 0.6f else 0.2f))
+            )
 
             if (isCheckingRoot) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
