@@ -160,7 +160,7 @@ fun Page1(
                 )
             }
             
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
             Text(
                 text = "Swipe For More Options",
