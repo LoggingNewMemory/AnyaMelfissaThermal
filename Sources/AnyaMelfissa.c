@@ -11,7 +11,7 @@ Copyright (C) 2026 Kanagawa Yamada
 #include <dirent.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
-#include <sys/system_properties.h>
+
 
 #define FAKE_TEMP_FILE "/data/local/tmp/fake_temp"
 #define FAKE_TEMP_VALUE "30000\n"
@@ -63,49 +63,12 @@ void restore_temperatures() {
     unlink(FAKE_TEMP_FILE);
 }
 
-#define MAX_SERVICES 50
-char services_to_restart[MAX_SERVICES][128];
-int num_services = 0;
-
-static void read_prop_callback(void *cookie, const char *name, const char *value, uint32_t serial) {
-    (void)value;
-    (void)serial;
-    
-    if (strncmp(name, "init.svc.", 9) == 0 && strstr(name, "thermal") != NULL) {
-        const char *svc_name = name + 9;
-        for (int i = 0; i < num_services; i++) {
-            if (strcmp(services_to_restart[i], svc_name) == 0) return;
-        }
-        if (num_services < MAX_SERVICES) {
-            strncpy(services_to_restart[num_services], svc_name, 127);
-            services_to_restart[num_services][127] = '\0';
-            num_services++;
-        }
-    }
-}
-
-static void iterate_prop_callback(const prop_info *pi, void *cookie) {
-    __system_property_read_callback(pi, read_prop_callback, cookie);
-}
-
-void restart_init_services() {
-    num_services = 0;
-    __system_property_foreach(iterate_prop_callback, NULL);
-    for (int i = 0; i < num_services; i++) {
-        char cmd[256];
-        snprintf(cmd, sizeof(cmd), "stop \"%s\"; start \"%s\" >/dev/null 2>&1", services_to_restart[i], services_to_restart[i]);
-        system(cmd);
-    }
-}
-
 void exec_anya_kawaii() {
     restore_temperatures();
-    restart_init_services();
 }
 
 void exec_anya_melfissa() {
     spoof_temperatures();
-    restart_init_services();
 }
 
 int main(int argc, char *argv[]) {
