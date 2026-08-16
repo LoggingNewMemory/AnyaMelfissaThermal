@@ -52,7 +52,7 @@ fun Page2(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         // Apply On Boot Box
         Card(
@@ -123,7 +123,7 @@ fun Page2(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // APP THEMES Box
         Card(
             colors = CardDefaults.cardColors(containerColor = cardBgColor),
