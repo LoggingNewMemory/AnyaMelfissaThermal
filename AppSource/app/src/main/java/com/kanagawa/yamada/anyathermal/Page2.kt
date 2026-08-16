@@ -70,8 +70,9 @@ fun Page2(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                    Text("Apply On Boot", color = textColor, fontWeight = FontWeight.Medium, fontSize = 20.sp)
-                    Text("Apply Thermal On Boot", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp)
+                    Text("Apply On Boot", color = textColor, fontWeight = FontWeight.Medium, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Apply Thermal On Boot", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, lineHeight = 16.sp)
                 }
                 CustomSwitch(
                     checked = applyOnBoot,
@@ -104,8 +105,9 @@ fun Page2(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                    Text("Alternative Mode", color = textColor, fontWeight = FontWeight.Medium, fontSize = 20.sp)
-                    Text("Modify thermal trip point instead of temp", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp)
+                    Text("Alternative Mode", color = textColor, fontWeight = FontWeight.Medium, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Modify thermal trip point instead of temp", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, lineHeight = 16.sp)
                 }
                 CustomSwitch(
                     checked = alterMethod,
