@@ -17,7 +17,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -64,30 +67,45 @@ fun MainScreen() {
     }
 
     CompositionLocalProvider(LocalAppTheme provides appTheme) {
+        val pagerState = rememberPagerState(pageCount = { 2 })
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
             val baseModifier = Modifier.fillMaxSize()
-            val imageModifier = if (!isRooted && !isCheckingRoot) {
-                baseModifier.blur(16.dp)
-            } else {
-                baseModifier
-            }
 
+            // Unblurred background
             Image(
                 painter = painterResource(id = R.drawable.anya),
                 contentDescription = "Background",
                 contentScale = ContentScale.Crop,
-                modifier = imageModifier
+                modifier = baseModifier
+            )
+            
+            // Blurred background layer (cross-fade for absolute buttery smoothness)
+            Image(
+                painter = painterResource(id = R.drawable.anya),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = baseModifier
+                    .graphicsLayer {
+                        val offset = (pagerState.currentPage + pagerState.currentPageOffsetFraction).coerceIn(0f, 1f)
+                        alpha = if (!isRooted && !isCheckingRoot) 1f else offset
+                    }
+                    .blur(8.dp)
             )
             
             // Dark overlay for readability and dimming
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = if (!isRooted && !isCheckingRoot) 0.6f else 0.2f))
+                    .drawBehind {
+                        val offset = (pagerState.currentPage + pagerState.currentPageOffsetFraction).coerceIn(0f, 1f)
+                        val alpha = if (!isRooted && !isCheckingRoot) 0.6f else (0.2f + offset * 0.2f)
+                        drawRect(Color.Black.copy(alpha = alpha))
+                    }
             )
 
             if (isCheckingRoot) {
@@ -106,7 +124,6 @@ fun MainScreen() {
                     )
                 }
             } else {
-                val pagerState = rememberPagerState(pageCount = { 2 })
 
                 VerticalPager(
                     state = pagerState,
