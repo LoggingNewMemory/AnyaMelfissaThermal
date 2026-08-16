@@ -36,6 +36,7 @@ cp -r "$MODPATH"/Anya.png /data/local/tmp >/dev/null 2>&1
 unzip -o "$ZIPFILE" 'AnyaMelfissa' -d $MODPATH >&2
 set_perm_recursive $MODPATH 0 0 0755 0755
 set_perm $MODPATH/AnyaMelfissa 0 0 0777
+chmod +x $MODPATH/AnyaMelfissa
 set_perm $MODPATH/AnyaConfig.txt 0 0 0777
 
 
