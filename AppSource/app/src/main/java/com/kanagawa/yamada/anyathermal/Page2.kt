@@ -122,48 +122,6 @@ fun Page2(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // APP THEMES Box
-        Card(
-            colors = CardDefaults.cardColors(containerColor = cardBgColor),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("APP THEMES", color = textColor, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Button(
-                        onClick = { onThemeChange("anya") },
-                        colors = ButtonDefaults.buttonColors(containerColor = if (currentTheme == "anya") selectedBtnColor else unselectedBtnColor),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f).height(48.dp)
-                    ) {
-                        Text("Anya", color = if (currentTheme == "anya") selectedTxtColor else unselectedTxtColor, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                    }
-                    Button(
-                        onClick = { onThemeChange("system") },
-                        colors = ButtonDefaults.buttonColors(containerColor = if (currentTheme == "system") selectedBtnColor else unselectedBtnColor),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f).height(48.dp)
-                    ) {
-                        Text("System", color = if (currentTheme == "system") selectedTxtColor else unselectedTxtColor, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.weight(1f))
         
         // DISCLAIMER
@@ -179,7 +137,7 @@ fun Page2(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "In this new version, Anya no longer kills Thermal Services. Instead, it spoof \"temp\" on /sys/class/thermal/thermal_zone* to 30. If you ask why using this app instead of just simple WebUI. It's because now you can enable / disable Anya Thermal on your Control Center",
+                text = "In this new version, Anya no longer kills Thermal Services. Instead, it spoof \"temp\" on /sys/class/thermal/thermal_zone* to 30 cels or Modify \"trip_point_0_temp\" to 200 cels. If you ask why using this app instead of just simple WebUI. It's because now you can enable / disable Anya Thermal on your Control Center",
                 color = textColor,
                 fontSize = 16.sp,
                 lineHeight = 22.sp
