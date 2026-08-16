@@ -12,8 +12,8 @@ Copyright (C) 2026 Kanagawa Yamada
 #include <sys/mount.h>
 #include <sys/stat.h>
 
-#define FAKE_TEMP_FILE "/data/local/tmp/fake_temp"
-#define FAKE_TRIP_FILE "/data/local/tmp/fake_trip"
+#define FAKE_TEMP_FILE "/data/adb/modules/AnyaMelfissa/fake_temp"
+#define FAKE_TRIP_FILE "/data/adb/modules/AnyaMelfissa/fake_trip"
 #define FAKE_TEMP_VALUE "30000\n"
 #define FAKE_TRIP_VALUE "200000\n"
 #define THERMAL_DIR "/sys/class/thermal"
