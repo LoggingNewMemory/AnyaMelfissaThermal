@@ -200,7 +200,7 @@ fun Page1(
                         onCheckedChange = { isChecked ->
                             onDisableThermalChange(isChecked)
                             coroutineScope.launch(Dispatchers.IO) {
-                                val binaryPath = "/data/adb/modules/AnyaMelfissa/AnyaMelfissa/AnyaMelfissa"
+                                val binaryPath = "/data/adb/modules/AnyaMelfissa/AnyaMelfissa"
                                 val arg = if (isChecked) "1" else "0"
                                 Shell.cmd("su -M -c \"$binaryPath $arg\"").exec()
                             }
