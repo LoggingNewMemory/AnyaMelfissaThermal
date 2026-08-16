@@ -115,14 +115,37 @@ void restore_trip() {
     unlink(FAKE_TRIP_FILE);
 }
 
+int get_alter_method() {
+    int alter_method = 0; // 0 = temp, 1 = trip
+    FILE *file = fopen("/data/adb/modules/AnyaMelfissa/AnyaConfig.txt", "r");
+    if (file) {
+        char line[256];
+        while (fgets(line, sizeof(line), file)) {
+            if (strncmp(line, "ALTER_METHOD=", 13) == 0) {
+                alter_method = atoi(line + 13);
+            }
+        }
+        fclose(file);
+    }
+    return alter_method;
+}
+
 void exec_anya_kawaii() {
-    restore_temperatures();
-    restore_trip();
+    int method = get_alter_method();
+    if (method == 1) {
+        restore_trip();
+    } else {
+        restore_temperatures();
+    }
 }
 
 void exec_anya_melfissa() {
-    spoof_temperatures();
-    spoof_trip();
+    int method = get_alter_method();
+    if (method == 1) {
+        spoof_trip();
+    } else {
+        spoof_temperatures();
+    }
 }
 
 int main(int argc, char *argv[]) {
