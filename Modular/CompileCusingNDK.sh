@@ -19,7 +19,7 @@ echo "Compiling C files using NDK..."
 for c_file in $SRC_DIR/*.c; do
     filename=$(basename -- "$c_file")
     binary_name="${filename%.*}"
-    TARGET_DIR="Modules/$binary_name"
+    TARGET_DIR="Modules"
     mkdir -p "$TARGET_DIR"
     
     echo "Building $binary_name..."

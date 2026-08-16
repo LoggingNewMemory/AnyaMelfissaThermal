@@ -33,10 +33,9 @@ ui_print "------------------------------------"
 ui_print " "
 
 cp -r "$MODPATH"/Anya.png /data/local/tmp >/dev/null 2>&1
-unzip -o "$ZIPFILE" 'AnyaMelfissa/*' -d $MODPATH >&2
-set_perm_recursive $MODPATH/AnyaMelfissa 0 0 0755 0644
+unzip -o "$ZIPFILE" 'AnyaMelfissa' -d $MODPATH >&2
 set_perm_recursive $MODPATH 0 0 0755 0755
-set_perm $MODPATH/AnyaMelfissa/AnyaMelfissa 0 0 0777
+set_perm $MODPATH/AnyaMelfissa 0 0 0777
 set_perm $MODPATH/StartOnBoot.txt 0 0 0777
 
 
