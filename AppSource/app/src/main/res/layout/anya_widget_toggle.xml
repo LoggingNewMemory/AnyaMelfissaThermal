@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:padding="24dp">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        
+        <!-- Left side: Profile picture -->
+        <ImageView
+            android:id="@+id/widget2_profile"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_vertical"
+            android:scaleType="centerCrop"
+            android:src="@drawable/widget_profile" />
+            
+        <!-- Right side: Title and Toggle Button -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="24dp"
+            android:orientation="vertical"
+            android:gravity="center">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Apply Anya Thermal"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center" />
+                
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="#FFFFFF" />
+                
+            <!-- This acts as the visual push button -->
+            <TextView
+                android:id="@+id/widget2_button"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="OFF"
+                android:textColor="#6D4C41"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif"
+                android:background="@drawable/bg_btn_off"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:gravity="center" />
+        </LinearLayout>
+            
+    </LinearLayout>
+</FrameLayout>

@@ -56,7 +56,13 @@ fun MainScreen() {
     var isRooted by remember { mutableStateOf(false) }
     var isCheckingRoot by remember { mutableStateOf(true) }
 
+    val locationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { _ -> }
+
     LaunchedEffect(Unit) {
+        locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+        
         launch(Dispatchers.IO) {
             isRooted = CheckRoot.isRooted()
             if (isRooted) {

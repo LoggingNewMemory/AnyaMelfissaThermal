@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="56dp"
+    android:height="32dp"
+    android:viewportWidth="56"
+    android:viewportHeight="32">
+    <!-- Track -->
+    <path
+        android:fillColor="#81C784"
+        android:pathData="M16,8 L40,8 A8,8 0 0,1 48,16 A8,8 0 0,1 40,24 L16,24 A8,8 0 0,1 8,16 A8,8 0 0,1 16,8 Z" />
+    <!-- Thumb -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M40,4 A12,12 0 0,1 52,16 A12,12 0 0,1 40,28 A12,12 0 0,1 28,16 A12,12 0 0,1 40,4 Z" />
+</vector>
