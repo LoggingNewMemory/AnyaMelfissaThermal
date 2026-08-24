@@ -6,16 +6,10 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Geocoder
-import android.location.LocationManager
 import android.widget.RemoteViews
-import androidx.core.content.ContextCompat
-import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.net.URL
 
 class AnyaWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(
@@ -48,47 +42,19 @@ class AnyaWidgetProvider : AppWidgetProvider() {
         )
         views.setOnClickPendingIntent(R.id.widget_profile, pendingIntent)
         
-        var locationText = "Location Unknown"
+        // Fetch Battery Level
+        val batteryIntent = context.registerReceiver(null, android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED))
+        val level = batteryIntent?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = batteryIntent?.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1) ?: -1
         
-        // 1. Try GPS / Network Location
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            try {
-                val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-                val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) 
-                    ?: locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                    ?: locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
-                
-                if (location != null) {
-                    val geocoder = Geocoder(context, Locale.getDefault())
-                    val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                    if (!addresses.isNullOrEmpty()) {
-                        val address = addresses[0]
-                        val city = address.locality ?: address.subAdminArea ?: address.adminArea
-                        val country = address.countryCode ?: address.countryName
-                        if (city != null && country != null) {
-                            locationText = "$city, $country"
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                // Ignore and fallthrough to IP lookup
-            }
-        }
-
-        // 2. Fallback to IP Geolocation if GPS is null or unknown
-        if (locationText == "Location Unknown" || locationText.isBlank()) {
-            try {
-                val city = URL("https://ipinfo.io/city").readText().trim()
-                val country = URL("https://ipinfo.io/country").readText().trim()
-                if (city.isNotEmpty() && country.isNotEmpty()) {
-                    locationText = "$city, $country"
-                }
-            } catch (e: Exception) {
-                locationText = "Location Unavailable"
-            }
+        val batteryText = if (level != -1 && scale != -1) {
+            val batteryPct = (level * 100 / scale.toFloat()).toInt()
+            "Battery: $batteryPct%"
+        } else {
+            "Battery: Unknown"
         }
         
-        views.setTextViewText(R.id.widget_location, locationText)
+        views.setTextViewText(R.id.widget_location, batteryText)
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 }
