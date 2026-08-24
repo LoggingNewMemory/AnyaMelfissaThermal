@@ -11,7 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -125,7 +125,7 @@ fun MainScreen() {
                 }
             } else {
 
-                VerticalPager(
+                HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize().systemBarsPadding()
                 ) { page ->

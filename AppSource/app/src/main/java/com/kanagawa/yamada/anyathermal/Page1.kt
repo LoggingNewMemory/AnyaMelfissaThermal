@@ -8,6 +8,7 @@ import com.kanagawa.yamada.anyathermal.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -161,15 +162,9 @@ fun Page1(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Swipe For More Options",
+                text = "Swipe Right For More Options",
                 color = textColor,
                 fontSize = 12.sp
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.up),
-                contentDescription = "Swipe up",
-                tint = textColor,
-                modifier = Modifier.size(32.dp)
             )
             
             Spacer(modifier = Modifier.height(16.dp))

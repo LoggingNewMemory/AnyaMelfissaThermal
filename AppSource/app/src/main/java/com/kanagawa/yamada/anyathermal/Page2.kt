@@ -2,6 +2,8 @@ package com.kanagawa.yamada.anyathermal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -52,77 +54,86 @@ fun Page2(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Spacer(modifier = Modifier.height(5.dp))
-
-        // Apply On Boot Box
-        Card(
-            colors = CardDefaults.cardColors(containerColor = cardBgColor),
-            shape = RoundedCornerShape(12.dp),
+        Column(
             modifier = Modifier
+                .weight(1f)
                 .fillMaxWidth()
-                .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-            Row(
+            Spacer(modifier = Modifier.height(5.dp))
+
+            // Apply On Boot Box
+            Card(
+                colors = CardDefaults.cardColors(containerColor = cardBgColor),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
             ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                    Text("Apply On Boot", color = textColor, fontWeight = FontWeight.Medium, fontSize = 18.sp)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Apply Thermal On Boot", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, lineHeight = 16.sp)
-                }
-                CustomSwitch(
-                    checked = applyOnBoot,
-                    onCheckedChange = { isChecked ->
-                        applyOnBoot = isChecked
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val v = if (isChecked) "1" else "0"
-                            Shell.cmd("sed -i 's/^START_ON_BOOT=.*/START_ON_BOOT=$v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
-                        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                        Text("Apply On Boot", color = textColor, fontWeight = FontWeight.Medium, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Apply Thermal On Boot", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, lineHeight = 16.sp)
                     }
-                )
+                    CustomSwitch(
+                        checked = applyOnBoot,
+                        onCheckedChange = { isChecked ->
+                            applyOnBoot = isChecked
+                            coroutineScope.launch(Dispatchers.IO) {
+                                val v = if (isChecked) "1" else "0"
+                                Shell.cmd("sed -i 's/^START_ON_BOOT=.*/START_ON_BOOT=$v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+                            }
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Alternative Mode Box
+            Card(
+                colors = CardDefaults.cardColors(containerColor = cardBgColor),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                        Text("Alternative Mode", color = textColor, fontWeight = FontWeight.Medium, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Modify thermal trip point instead of temp", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, lineHeight = 16.sp)
+                    }
+                    CustomSwitch(
+                        checked = alterMethod,
+                        onCheckedChange = { isChecked ->
+                            alterMethod = isChecked
+                            coroutineScope.launch(Dispatchers.IO) {
+                                val v = if (isChecked) "1" else "0"
+                                Shell.cmd("sed -i 's/^ALTER_METHOD=.*/ALTER_METHOD=$v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+                            }
+                        }
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        // Alternative Mode Box
-        Card(
-            colors = CardDefaults.cardColors(containerColor = cardBgColor),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                    Text("Alternative Mode", color = textColor, fontWeight = FontWeight.Medium, fontSize = 18.sp)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Modify thermal trip point instead of temp", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, lineHeight = 16.sp)
-                }
-                CustomSwitch(
-                    checked = alterMethod,
-                    onCheckedChange = { isChecked ->
-                        alterMethod = isChecked
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val v = if (isChecked) "1" else "0"
-                            Shell.cmd("sed -i 's/^ALTER_METHOD=.*/ALTER_METHOD=$v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
-                        }
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(32.dp))
         
         // DISCLAIMER
         Column(
