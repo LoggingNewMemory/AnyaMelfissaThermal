@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Siluet Bilah (Wavy), Ganja (Guard), dan Hulu (Handle) Keris -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,2 C10.5,5 13.5,8 11.5,11 C10,13.5 12,15 12,15 L7,15 L7,17 L11,17 C11,19 9,20 9,21 C9,22 15,22 15,21 C15,20 13,19 13,17 L17,17 L17,15 L12,15 C12,15 14,13.5 12.5,11 C10.5,8 13.5,5 12,2 Z" />
+</vector>
