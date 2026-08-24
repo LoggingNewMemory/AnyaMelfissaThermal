@@ -64,6 +64,17 @@ class AnyaToggleWidgetProvider : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.anya_widget_toggle)
         
+        // Setup intent to open app on profile click
+        val appIntent = Intent(context, MainActivity::class.java)
+        val appPendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            appIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.widget2_profile, appPendingIntent)
+        
+        // Setup toggle intent for the button
         val intent = Intent(context, AnyaToggleWidgetProvider::class.java).apply {
             action = ACTION_TOGGLE_THERMAL
         }
