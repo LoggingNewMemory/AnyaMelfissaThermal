@@ -51,10 +51,10 @@ class AnyaTileService : TileService() {
                 val tile = qsTile ?: return@withContext
                 if (isDisabled) {
                     tile.state = Tile.STATE_ACTIVE
-                    tile.label = "Thermal Disabled"
+                    tile.label = "Anya Thermal"
                 } else {
                     tile.state = Tile.STATE_INACTIVE
-                    tile.label = "Thermal Enabled"
+                    tile.label = "Anya Normal"
                 }
                 tile.updateTile()
                 Log.d("AnyaTile", "tile.updateTile() called on Main thread with state=${tile.state}")
