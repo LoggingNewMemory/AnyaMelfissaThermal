@@ -2,3 +2,6 @@ megumi.sh
 Build/
 Modules/AnyaMelfissa/*
 IMG/Exported/*
+*jks
+*.apk
+*.dm

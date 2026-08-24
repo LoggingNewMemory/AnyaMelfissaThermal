@@ -48,6 +48,11 @@ build_modules() {
         fi
     fi
 
+    # --- Build App ---
+    if [ -f "Modular/CompileApp.sh" ]; then
+        bash Modular/CompileApp.sh
+    fi
+
     cd "$MODULES_DIR" || exit 1
     MODULE_ID=$(grep "^id=" "module.prop" | cut -d'=' -f2 | tr -d '[:space:]')
 
