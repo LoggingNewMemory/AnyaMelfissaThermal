@@ -123,11 +123,16 @@ fun Page2(
                         checked = alterMethod,
                         onCheckedChange = { isChecked ->
                             alterMethod = isChecked
-                            coroutineScope.launch(Dispatchers.IO) {
-                                val v = if (isChecked) "1" else "0"
-                                Shell.cmd("sed -i 's/^ALTER_METHOD=.*/ALTER_METHOD=$v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+                        coroutineScope.launch(Dispatchers.IO) {
+                            val v = if (isChecked) "1" else "0"
+                            Shell.cmd("sed -i 's/^ALTER_METHOD=.*/ALTER_METHOD=$v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+                            
+                            if (CheckRoot.isThermalDisabled()) {
+                                val binaryPath = "/data/adb/modules/AnyaMelfissa/AnyaMelfissa"
+                                Shell.cmd("su -M -c \"$binaryPath 1\"").exec()
                             }
                         }
+                    }
                     )
                 }
             }

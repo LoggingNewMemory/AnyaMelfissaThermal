@@ -131,15 +131,13 @@ int get_alter_method() {
 }
 
 void exec_anya_kawaii() {
-    int method = get_alter_method();
-    if (method == 1) {
-        restore_trip();
-    } else {
-        restore_temperatures();
-    }
+    restore_trip();
+    restore_temperatures();
 }
 
 void exec_anya_melfissa() {
+    restore_trip();
+    restore_temperatures();
     int method = get_alter_method();
     if (method == 1) {
         spoof_trip();
