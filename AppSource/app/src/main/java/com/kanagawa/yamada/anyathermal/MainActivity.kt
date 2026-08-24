@@ -64,6 +64,28 @@ fun MainScreen() {
             }
             isCheckingRoot = false
         }
+        launch {
+            CheckRoot.thermalStateFlow.collect { newState ->
+                disableThermal = newState
+            }
+        }
+    }
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                if (isRooted && !isCheckingRoot) {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        disableThermal = CheckRoot.isThermalDisabled()
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     CompositionLocalProvider(LocalAppTheme provides appTheme) {

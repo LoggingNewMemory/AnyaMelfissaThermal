@@ -5,6 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object CheckRoot {
+    val thermalStateFlow = kotlinx.coroutines.flow.MutableSharedFlow<Boolean>(extraBufferCapacity = 1, onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST)
+
     suspend fun isRooted(): Boolean = withContext(Dispatchers.IO) {
         // Initializes the global shell and checks for root.
         // This is universally compatible with Magisk, KernelSU, APatch, etc.

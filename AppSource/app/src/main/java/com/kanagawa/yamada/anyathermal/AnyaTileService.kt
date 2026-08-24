@@ -38,6 +38,7 @@ class AnyaTileService : TileService() {
             
             // Optimistically update the tile state without querying mount again immediately
             updateTileState(newState)
+            CheckRoot.thermalStateFlow.tryEmit(newState)
         }
     }
 
