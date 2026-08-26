@@ -37,41 +37,43 @@ unzip -o "$ZIPFILE" 'AnyaMelfissa' -d $MODPATH >&2
 set_perm_recursive $MODPATH 0 0 0755 0755
 set_perm $MODPATH/AnyaMelfissa 0 0 0777
 chmod +x $MODPATH/AnyaMelfissa
-set_perm $MODPATH/AnyaConfig.txt 0 0 0777
+[ -f "$MODPATH/AnyaConfig.txt" ] && set_perm $MODPATH/AnyaConfig.txt 0 0 0777
 
 
 ui_print "------------------------------------"
 ui_print "        INSTALLING MODULES OK       "
 ui_print "------------------------------------"
 
-ui_print " "
-ui_print "   INSTALLING ANYA THERMAL APP      "
-ui_print " "
+if unzip -l "$ZIPFILE" 'AnyaThermal.apk' >/dev/null 2>&1; then
+  ui_print " "
+  ui_print "   INSTALLING ANYA THERMAL APP      "
+  ui_print " "
 
-PACKAGE_NAME="com.kanagawa.yamada.anyathermal"
-ui_print "- Copying AnyaThermal.apk..."
+  PACKAGE_NAME="com.kanagawa.yamada.anyathermal"
+  ui_print "- Copying AnyaThermal.apk..."
 
-# Soft check for APK copy to prevent installation failure
-if unzip -o "$ZIPFILE" 'AnyaThermal.apk' -d "$MODPATH" >&2 && cp "$MODPATH/AnyaThermal.apk" "/data/local/tmp" >/dev/null 2>&1; then
-  ui_print "- Installing APK..."
-  pm install -r -d --user 0 /data/local/tmp/AnyaThermal.apk >/dev/null 2>&1
+  # Soft check for APK copy to prevent installation failure
+  if unzip -o "$ZIPFILE" 'AnyaThermal.apk' -d "$MODPATH" >&2 && cp "$MODPATH/AnyaThermal.apk" "/data/local/tmp" >/dev/null 2>&1; then
+    ui_print "- Installing APK..."
+    pm install -r -d --user 0 /data/local/tmp/AnyaThermal.apk >/dev/null 2>&1
 
-  if pm path "$PACKAGE_NAME" >/dev/null 2>&1; then
-    ui_print "- Anya Thermal App installed/updated successfully."
+    if pm path "$PACKAGE_NAME" >/dev/null 2>&1; then
+      ui_print "- Anya Thermal App installed/updated successfully."
+    else
+      ui_print "! WARNING: Installation of Anya Thermal App failed."
+      ui_print "! Please unzip the module and install the APK manually."
+    fi
+
+    # Clean up APK file from temp directory
+    rm -f /data/local/tmp/AnyaThermal.apk >/dev/null 2>&1
   else
-    ui_print "! WARNING: Installation of Anya Thermal App failed."
+    ui_print "! WARNING: Failed to copy AnyaThermal.apk to temp directory."
     ui_print "! Please unzip the module and install the APK manually."
   fi
 
-  # Clean up APK file from temp directory
-  rm -f /data/local/tmp/AnyaThermal.apk >/dev/null 2>&1
-else
-  ui_print "! WARNING: Failed to copy AnyaThermal.apk to temp directory."
-  ui_print "! Please unzip the module and install the APK manually."
+  # Clean up APK from module directory to save space
+  rm -f "$MODPATH/AnyaThermal.apk" >/dev/null 2>&1
 fi
-
-# Clean up APK from module directory to save space
-rm -f "$MODPATH/AnyaThermal.apk" >/dev/null 2>&1
 
 ui_print " "
 ui_print "  Even if you install this module   "

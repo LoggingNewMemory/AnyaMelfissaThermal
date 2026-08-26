@@ -9,6 +9,13 @@ export MODULEVERSION="8.0"
 export FLASHTODEVICE="1"
 export SENDTOTELEGRAM="0"
 
+#========================
+# BUILD VARIANT
+# 1 = Full
+# 2 = Minimal
+#========================
+export VARIANT="1"
+
 MODULES_DIR="Modules"
 BUILD_DIR="Build"
 
@@ -69,10 +76,30 @@ build_modules() {
         rm "customize.sh.tmp"
     fi
 
-    ZIP_NAME="${MODULE_ID}-${VERSION}.zip"
-    ZIP_PATH="../$BUILD_DIR/$ZIP_NAME"
-    zip -q -r "$ZIP_PATH" ./*
-    echo "Created: $ZIP_NAME"
+    if [ "$VARIANT" = "2" ]; then
+        # --- Build MINIMAL Variant ---
+        ZIP_NAME="${MODULE_ID}-${VERSION}-MINIMAL.zip"
+        ZIP_PATH="../$BUILD_DIR/$ZIP_NAME"
+        
+        MINIMAL_DIR="../$BUILD_DIR/minimal_tmp"
+        mkdir -p "$MINIMAL_DIR"
+        cp -r ./* "$MINIMAL_DIR/"
+        rm -f "$MINIMAL_DIR/AnyaThermal.apk"
+        rm -f "$MINIMAL_DIR/AnyaConfig.txt"
+        sed -i 's/^name=.*/& (Minimal)/' "$MINIMAL_DIR/module.prop"
+        
+        pushd "$MINIMAL_DIR" >/dev/null
+        zip -q -r "../$ZIP_NAME" ./*
+        popd >/dev/null
+        rm -rf "$MINIMAL_DIR"
+        echo "Created: $ZIP_NAME (Minimal Variant)"
+    else
+        # --- Build FULL Variant ---
+        ZIP_NAME="${MODULE_ID}-${VERSION}-FULL.zip"
+        ZIP_PATH="../$BUILD_DIR/$ZIP_NAME"
+        zip -q -r "$ZIP_PATH" ./*
+        echo "Created: $ZIP_NAME (Full Variant)"
+    fi
 
     cd ..
 
