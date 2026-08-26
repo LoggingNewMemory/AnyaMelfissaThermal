@@ -112,6 +112,16 @@ void spoof_thermal() {
                 }
                 closedir(zdir);
             }
+        } else if (strncmp(ent->d_name, "cooling_device", 14) == 0) {
+            char cdev_dir[512];
+            snprintf(cdev_dir, sizeof(cdev_dir), "%s/%s", THERMAL_DIR, ent->d_name);
+            
+            char cur_state_path[512];
+            snprintf(cur_state_path, sizeof(cur_state_path), "%s/cur_state", cdev_dir);
+            
+            umount2(cur_state_path, MNT_DETACH);
+            
+            mount(FAKE_ZERO_FILE, cur_state_path, NULL, MS_BIND, NULL);
         }
     }
     closedir(dir);
@@ -167,6 +177,14 @@ void restore_thermal() {
                 }
                 closedir(zdir);
             }
+        } else if (strncmp(ent->d_name, "cooling_device", 14) == 0) {
+            char cdev_dir[512];
+            snprintf(cdev_dir, sizeof(cdev_dir), "%s/%s", THERMAL_DIR, ent->d_name);
+            
+            char cur_state_path[512];
+            snprintf(cur_state_path, sizeof(cur_state_path), "%s/cur_state", cdev_dir);
+            
+            umount2(cur_state_path, MNT_DETACH);
         }
     }
     closedir(dir);
