@@ -28,8 +28,8 @@ class AnyaToggleWidgetProvider : AppWidgetProvider() {
                 val arg = if (isCurrentlyDisabled) "0" else "1"
                 val newState = arg == "1"
                 
-                val script = if (arg == "1") "/data/adb/modules/AnyaMelfissa/AnyaOn.sh" else "/data/adb/modules/AnyaMelfissa/AnyaOff.sh"
-                Shell.cmd("sh $script").exec()
+                val scriptCommand = if (arg == "1") "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 1'" else "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 0'"
+                Shell.cmd(scriptCommand).exec()
                 
                 // Update the state globally so MainActivity and Tiles also update
                 CheckRoot.thermalStateFlow.tryEmit(newState)
