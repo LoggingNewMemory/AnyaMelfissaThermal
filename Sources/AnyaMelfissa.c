@@ -68,9 +68,14 @@ void spoof_thermal() {
             
             char emul_path[512];
             char temp_path[512];
+            char mode_path[512];
             snprintf(emul_path, sizeof(emul_path), "%s/emul_temp", zone_path);
             snprintf(temp_path, sizeof(temp_path), "%s/temp", zone_path);
+            snprintf(mode_path, sizeof(mode_path), "%s/mode", zone_path);
             
+            // Write to mode native kernel disable
+            write_sysfs(mode_path, "disabled\n");
+
             // Write to emul_temp native kernel spoof
             write_sysfs(emul_path, FAKE_TEMP_VALUE);
 
@@ -119,9 +124,14 @@ void restore_thermal() {
             
             char emul_path[512];
             char temp_path[512];
+            char mode_path[512];
             snprintf(emul_path, sizeof(emul_path), "%s/emul_temp", zone_path);
             snprintf(temp_path, sizeof(temp_path), "%s/temp", zone_path);
+            snprintf(mode_path, sizeof(mode_path), "%s/mode", zone_path);
             
+            // Re-enable native kernel thermal monitoring
+            write_sysfs(mode_path, "enabled\n");
+
             // Write 0 to disable emulation
             write_sysfs(emul_path, "0");
 
