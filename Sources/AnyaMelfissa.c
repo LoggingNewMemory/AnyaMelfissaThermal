@@ -103,6 +103,11 @@ void spoof_thermal() {
                         snprintf(cdev_path, sizeof(cdev_path), "%s/%s", zone_path, zent->d_name);
                         umount2(cdev_path, MNT_DETACH);
                         mount(FAKE_ZERO_FILE, cdev_path, NULL, MS_BIND, NULL);
+                    } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_weight") != NULL) {
+                        char weight_path[512];
+                        snprintf(weight_path, sizeof(weight_path), "%s/%s", zone_path, zent->d_name);
+                        umount2(weight_path, MNT_DETACH);
+                        mount(FAKE_ZERO_FILE, weight_path, NULL, MS_BIND, NULL);
                     }
                 }
                 closedir(zdir);
@@ -154,6 +159,10 @@ void restore_thermal() {
                         char cdev_path[512];
                         snprintf(cdev_path, sizeof(cdev_path), "%s/%s", zone_path, zent->d_name);
                         umount2(cdev_path, MNT_DETACH);
+                    } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_weight") != NULL) {
+                        char weight_path[512];
+                        snprintf(weight_path, sizeof(weight_path), "%s/%s", zone_path, zent->d_name);
+                        umount2(weight_path, MNT_DETACH);
                     }
                 }
                 closedir(zdir);
