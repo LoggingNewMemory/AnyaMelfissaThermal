@@ -52,24 +52,36 @@ void spoof_thermal() {
     struct dirent *ent;
     while ((ent = readdir(dir)) != NULL) {
         if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
-            char temp_path[512];
-            char trip_path[512];
-            char emul_path[512];
+            char zone_path[512];
+            snprintf(zone_path, sizeof(zone_path), "%s/%s", THERMAL_DIR, ent->d_name);
             
-            snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
-            snprintf(trip_path, sizeof(trip_path), "%s/%s/trip_point_0_temp", THERMAL_DIR, ent->d_name);
-            snprintf(emul_path, sizeof(emul_path), "%s/%s/emul_temp", THERMAL_DIR, ent->d_name);
+            char emul_path[512];
+            char temp_path[512];
+            snprintf(emul_path, sizeof(emul_path), "%s/emul_temp", zone_path);
+            snprintf(temp_path, sizeof(temp_path), "%s/temp", zone_path);
             
             // Write to emul_temp native kernel spoof
             write_sysfs(emul_path, FAKE_TEMP_VALUE);
 
             // Unmount first in case it's already mounted to prevent stacking
             umount2(temp_path, MNT_DETACH);
-            umount2(trip_path, MNT_DETACH);
-            
             // Bind mount the fake files over the real ones
             mount(FAKE_TEMP_FILE, temp_path, NULL, MS_BIND, NULL);
-            mount(FAKE_TRIP_FILE, trip_path, NULL, MS_BIND, NULL);
+            
+            DIR *zdir = opendir(zone_path);
+            if (zdir) {
+                struct dirent *zent;
+                while ((zent = readdir(zdir)) != NULL) {
+                    if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_temp") != NULL) {
+                        char trip_path[512];
+                        snprintf(trip_path, sizeof(trip_path), "%s/%s", zone_path, zent->d_name);
+                        
+                        umount2(trip_path, MNT_DETACH);
+                        mount(FAKE_TRIP_FILE, trip_path, NULL, MS_BIND, NULL);
+                    }
+                }
+                closedir(zdir);
+            }
         }
     }
     closedir(dir);
@@ -82,20 +94,32 @@ void restore_thermal() {
     struct dirent *ent;
     while ((ent = readdir(dir)) != NULL) {
         if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
-            char temp_path[512];
-            char trip_path[512];
-            char emul_path[512];
+            char zone_path[512];
+            snprintf(zone_path, sizeof(zone_path), "%s/%s", THERMAL_DIR, ent->d_name);
             
-            snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
-            snprintf(trip_path, sizeof(trip_path), "%s/%s/trip_point_0_temp", THERMAL_DIR, ent->d_name);
-            snprintf(emul_path, sizeof(emul_path), "%s/%s/emul_temp", THERMAL_DIR, ent->d_name);
+            char emul_path[512];
+            char temp_path[512];
+            snprintf(emul_path, sizeof(emul_path), "%s/emul_temp", zone_path);
+            snprintf(temp_path, sizeof(temp_path), "%s/temp", zone_path);
             
             // Write 0 to disable emulation
             write_sysfs(emul_path, "0");
 
             // Unmount the fake files with MNT_DETACH to prevent EBUSY
             umount2(temp_path, MNT_DETACH);
-            umount2(trip_path, MNT_DETACH);
+            
+            DIR *zdir = opendir(zone_path);
+            if (zdir) {
+                struct dirent *zent;
+                while ((zent = readdir(zdir)) != NULL) {
+                    if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_temp") != NULL) {
+                        char trip_path[512];
+                        snprintf(trip_path, sizeof(trip_path), "%s/%s", zone_path, zent->d_name);
+                        umount2(trip_path, MNT_DETACH);
+                    }
+                }
+                closedir(zdir);
+            }
         }
     }
     closedir(dir);
