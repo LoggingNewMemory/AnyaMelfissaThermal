@@ -6,7 +6,7 @@
 # 1 = Enable | 0 = Disable
 #========================
 export MODULEVERSION="8.0"
-export FLASHTODEVICE="0"
+export FLASHTODEVICE="1"
 export SENDTOTELEGRAM="0"
 
 #========================
@@ -14,7 +14,7 @@ export SENDTOTELEGRAM="0"
 # 1 = Full
 # 2 = Minimal
 #========================
-export VARIANT="1"
+export VARIANT="2"
 
 MODULES_DIR="Modules"
 BUILD_DIR="Build"

@@ -2,6 +2,9 @@ while [ -z "$(getprop sys.boot_completed)" ]; do
 sleep 10
 done
 
+# Prevent Launcher Crashed
+sleep 30 
+
 if [ -f /data/adb/modules/AnyaMelfissa/AnyaConfig.txt ]; then
   sed -i 's/^ANYA .*/ANYA 0/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt
 
