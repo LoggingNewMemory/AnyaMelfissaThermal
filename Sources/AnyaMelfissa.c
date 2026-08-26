@@ -123,6 +123,9 @@ void spoof_thermal() {
             
             mount(FAKE_ZERO_FILE, cur_state_path, NULL, MS_BIND, NULL);
         }
+        
+        // Sleep for 5ms to prevent flooding system_server with mount events (prevents UI freeze)
+        usleep(5000);
     }
     closedir(dir);
 }
@@ -186,6 +189,9 @@ void restore_thermal() {
             
             umount2(cur_state_path, MNT_DETACH);
         }
+        
+        // Sleep for 5ms to prevent flooding system_server with mount events (prevents UI freeze)
+        usleep(5000);
     }
     closedir(dir);
     
@@ -196,11 +202,13 @@ void restore_thermal() {
 
 void exec_anya_kawaii() {
     restore_thermal();
+    system("sed -i 's/^ANYA .*/ANYA 0/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt 2>/dev/null");
 }
 
 void exec_anya_melfissa() {
     restore_thermal();
     spoof_thermal();
+    system("sed -i 's/^ANYA .*/ANYA 1/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt 2>/dev/null");
 }
 
 int main(int argc, char *argv[]) {
