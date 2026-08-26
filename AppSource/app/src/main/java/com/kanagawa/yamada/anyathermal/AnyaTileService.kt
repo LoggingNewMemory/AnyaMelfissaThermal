@@ -34,7 +34,8 @@ class AnyaTileService : TileService() {
             
             // Execute the binary to toggle thermal state
             Log.d("AnyaTile", "Executing AnyaMelfissa $arg")
-            Shell.cmd("su -M -c \"/data/adb/modules/AnyaMelfissa/AnyaMelfissa $arg\"").exec()
+            val script = if (arg == "1") "/data/adb/modules/AnyaMelfissa/AnyaOn.sh" else "/data/adb/modules/AnyaMelfissa/AnyaOff.sh"
+                Shell.cmd("sh $script").exec()
             
             // Optimistically update the tile state without querying mount again immediately
             updateTileState(newState)
