@@ -79,7 +79,15 @@ build_modules() {
     # --- Build FULL Variant ---
     ZIP_NAME_FULL="${MODULE_ID}-${VERSION}-FULL.zip"
     ZIP_PATH_FULL="../$BUILD_DIR/$ZIP_NAME_FULL"
-    zip -q -r "$ZIP_PATH_FULL" ./*
+    FULL_DIR="../$BUILD_DIR/full_tmp"
+    mkdir -p "$FULL_DIR"
+    cp -r ./* "$FULL_DIR/"
+    sed -i 's/^name=.*/& [FULL]/' "$FULL_DIR/module.prop"
+    
+    pushd "$FULL_DIR" >/dev/null
+    zip -q -r "../$ZIP_NAME_FULL" ./*
+    popd >/dev/null
+    rm -rf "$FULL_DIR"
     echo "Created: $ZIP_NAME_FULL (Full Variant)"
 
     # --- Build MINIMAL Variant ---
@@ -90,7 +98,7 @@ build_modules() {
     cp -r ./* "$MINIMAL_DIR/"
     rm -f "$MINIMAL_DIR/AnyaThermal.apk"
     rm -f "$MINIMAL_DIR/AnyaConfig.txt"
-    sed -i 's/^name=.*/& (Minimal)/' "$MINIMAL_DIR/module.prop"
+    sed -i 's/^name=.*/& [MINIMAL]/' "$MINIMAL_DIR/module.prop"
     
     pushd "$MINIMAL_DIR" >/dev/null
     zip -q -r "../$ZIP_NAME_MINIMAL" ./*
