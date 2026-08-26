@@ -14,8 +14,10 @@ Copyright (C) 2026 Kanagawa Yamada
 
 #define FAKE_TEMP_FILE "/data/adb/modules/AnyaMelfissa/fake_temp"
 #define FAKE_TRIP_FILE "/data/adb/modules/AnyaMelfissa/fake_trip"
+#define FAKE_ZERO_FILE "/data/adb/modules/AnyaMelfissa/fake_zero"
 #define FAKE_TEMP_VALUE "30000\n"
 #define FAKE_TRIP_VALUE "200000\n"
+#define FAKE_ZERO_VALUE "0\n"
 #define THERMAL_DIR "/sys/class/thermal"
 
 void create_fake_temp_file() {
@@ -34,6 +36,14 @@ void create_fake_trip_file() {
     }
 }
 
+void create_fake_zero_file() {
+    int fd = open(FAKE_ZERO_FILE, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd >= 0) {
+        write(fd, FAKE_ZERO_VALUE, strlen(FAKE_ZERO_VALUE));
+        close(fd);
+    }
+}
+
 void write_sysfs(const char *path, const char *val) {
     int fd = open(path, O_WRONLY);
     if (fd >= 0) {
@@ -45,6 +55,7 @@ void write_sysfs(const char *path, const char *val) {
 void spoof_thermal() {
     create_fake_temp_file();
     create_fake_trip_file();
+    create_fake_zero_file();
 
     DIR *dir = opendir(THERMAL_DIR);
     if (!dir) return;
@@ -75,9 +86,18 @@ void spoof_thermal() {
                     if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_temp") != NULL) {
                         char trip_path[512];
                         snprintf(trip_path, sizeof(trip_path), "%s/%s", zone_path, zent->d_name);
-                        
                         umount2(trip_path, MNT_DETACH);
                         mount(FAKE_TRIP_FILE, trip_path, NULL, MS_BIND, NULL);
+                    } else if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_hyst") != NULL) {
+                        char hyst_path[512];
+                        snprintf(hyst_path, sizeof(hyst_path), "%s/%s", zone_path, zent->d_name);
+                        umount2(hyst_path, MNT_DETACH);
+                        mount(FAKE_ZERO_FILE, hyst_path, NULL, MS_BIND, NULL);
+                    } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_trip_point") != NULL) {
+                        char cdev_path[512];
+                        snprintf(cdev_path, sizeof(cdev_path), "%s/%s", zone_path, zent->d_name);
+                        umount2(cdev_path, MNT_DETACH);
+                        mount(FAKE_ZERO_FILE, cdev_path, NULL, MS_BIND, NULL);
                     }
                 }
                 closedir(zdir);
@@ -116,6 +136,14 @@ void restore_thermal() {
                         char trip_path[512];
                         snprintf(trip_path, sizeof(trip_path), "%s/%s", zone_path, zent->d_name);
                         umount2(trip_path, MNT_DETACH);
+                    } else if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_hyst") != NULL) {
+                        char hyst_path[512];
+                        snprintf(hyst_path, sizeof(hyst_path), "%s/%s", zone_path, zent->d_name);
+                        umount2(hyst_path, MNT_DETACH);
+                    } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_trip_point") != NULL) {
+                        char cdev_path[512];
+                        snprintf(cdev_path, sizeof(cdev_path), "%s/%s", zone_path, zent->d_name);
+                        umount2(cdev_path, MNT_DETACH);
                     }
                 }
                 closedir(zdir);
@@ -126,6 +154,7 @@ void restore_thermal() {
     
     unlink(FAKE_TEMP_FILE);
     unlink(FAKE_TRIP_FILE);
+    unlink(FAKE_ZERO_FILE);
 }
 
 void exec_anya_kawaii() {
