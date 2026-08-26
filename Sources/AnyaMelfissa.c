@@ -34,6 +34,14 @@ void create_fake_trip_file() {
     }
 }
 
+void write_sysfs(const char *path, const char *val) {
+    int fd = open(path, O_WRONLY);
+    if (fd >= 0) {
+        write(fd, val, strlen(val));
+        close(fd);
+    }
+}
+
 void spoof_thermal() {
     create_fake_temp_file();
     create_fake_trip_file();
@@ -46,9 +54,15 @@ void spoof_thermal() {
         if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
             char temp_path[512];
             char trip_path[512];
+            char emul_path[512];
+            
             snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
             snprintf(trip_path, sizeof(trip_path), "%s/%s/trip_point_0_temp", THERMAL_DIR, ent->d_name);
+            snprintf(emul_path, sizeof(emul_path), "%s/%s/emul_temp", THERMAL_DIR, ent->d_name);
             
+            // Write to emul_temp native kernel spoof
+            write_sysfs(emul_path, FAKE_TEMP_VALUE);
+
             // Unmount first in case it's already mounted to prevent stacking
             umount2(temp_path, MNT_DETACH);
             umount2(trip_path, MNT_DETACH);
@@ -70,9 +84,15 @@ void restore_thermal() {
         if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
             char temp_path[512];
             char trip_path[512];
+            char emul_path[512];
+            
             snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
             snprintf(trip_path, sizeof(trip_path), "%s/%s/trip_point_0_temp", THERMAL_DIR, ent->d_name);
+            snprintf(emul_path, sizeof(emul_path), "%s/%s/emul_temp", THERMAL_DIR, ent->d_name);
             
+            // Write 0 to disable emulation
+            write_sysfs(emul_path, "0");
+
             // Unmount the fake files with MNT_DETACH to prevent EBUSY
             umount2(temp_path, MNT_DETACH);
             umount2(trip_path, MNT_DETACH);
