@@ -34,29 +34,8 @@ void create_fake_trip_file() {
     }
 }
 
-void spoof_temperatures() {
+void spoof_thermal() {
     create_fake_temp_file();
-
-    DIR *dir = opendir(THERMAL_DIR);
-    if (!dir) return;
-
-    struct dirent *ent;
-    while ((ent = readdir(dir)) != NULL) {
-        if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
-            char temp_path[512];
-            snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
-            
-            // Unmount first in case it's already mounted to prevent stacking
-            umount2(temp_path, MNT_DETACH);
-            
-            // Bind mount the fake temperature file over the real one
-            mount(FAKE_TEMP_FILE, temp_path, NULL, MS_BIND, NULL);
-        }
-    }
-    closedir(dir);
-}
-
-void spoof_trip() {
     create_fake_trip_file();
 
     DIR *dir = opendir(THERMAL_DIR);
@@ -65,20 +44,24 @@ void spoof_trip() {
     struct dirent *ent;
     while ((ent = readdir(dir)) != NULL) {
         if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
+            char temp_path[512];
             char trip_path[512];
+            snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
             snprintf(trip_path, sizeof(trip_path), "%s/%s/trip_point_0_temp", THERMAL_DIR, ent->d_name);
-
+            
             // Unmount first in case it's already mounted to prevent stacking
+            umount2(temp_path, MNT_DETACH);
             umount2(trip_path, MNT_DETACH);
-
-            // Bind fake trip point file
+            
+            // Bind mount the fake files over the real ones
+            mount(FAKE_TEMP_FILE, temp_path, NULL, MS_BIND, NULL);
             mount(FAKE_TRIP_FILE, trip_path, NULL, MS_BIND, NULL);
         }
     }
     closedir(dir);
 }
 
-void restore_temperatures() {
+void restore_thermal() {
     DIR *dir = opendir(THERMAL_DIR);
     if (!dir) return;
 
@@ -86,64 +69,28 @@ void restore_temperatures() {
     while ((ent = readdir(dir)) != NULL) {
         if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
             char temp_path[512];
-            snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
-            
-            // Unmount the fake temperature file with MNT_DETACH to prevent EBUSY
-            umount2(temp_path, MNT_DETACH);
-        }
-    }
-    closedir(dir);
-    
-    unlink(FAKE_TEMP_FILE);
-}
-
-void restore_trip() {
-    DIR *dir = opendir(THERMAL_DIR);
-    if (!dir) return;
-
-    struct dirent *ent;
-    while ((ent = readdir(dir)) != NULL) {
-        if (strncmp(ent->d_name, "thermal_zone", 12) == 0) {
             char trip_path[512];
+            snprintf(temp_path, sizeof(temp_path), "%s/%s/temp", THERMAL_DIR, ent->d_name);
             snprintf(trip_path, sizeof(trip_path), "%s/%s/trip_point_0_temp", THERMAL_DIR, ent->d_name);
-
+            
+            // Unmount the fake files with MNT_DETACH to prevent EBUSY
+            umount2(temp_path, MNT_DETACH);
             umount2(trip_path, MNT_DETACH);
         }
     }
     closedir(dir);
     
+    unlink(FAKE_TEMP_FILE);
     unlink(FAKE_TRIP_FILE);
 }
 
-int get_alter_method() {
-    int alter_method = 0; // 0 = temp, 1 = trip
-    FILE *file = fopen("/data/adb/modules/AnyaMelfissa/AnyaConfig.txt", "r");
-    if (file) {
-        char line[256];
-        while (fgets(line, sizeof(line), file)) {
-            if (strncmp(line, "ALTER_METHOD=", 13) == 0) {
-                alter_method = atoi(line + 13);
-            }
-        }
-        fclose(file);
-    }
-    return alter_method;
-}
-
 void exec_anya_kawaii() {
-    restore_trip();
-    restore_temperatures();
+    restore_thermal();
 }
 
 void exec_anya_melfissa() {
-    restore_trip();
-    restore_temperatures();
-    int method = get_alter_method();
-    if (method == 1) {
-        spoof_trip();
-    } else {
-        spoof_temperatures();
-    }
+    restore_thermal();
+    spoof_thermal();
 }
 
 int main(int argc, char *argv[]) {

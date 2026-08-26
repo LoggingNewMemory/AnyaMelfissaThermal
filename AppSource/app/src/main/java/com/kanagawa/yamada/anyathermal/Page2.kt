@@ -25,15 +25,11 @@ fun Page2(
     onThemeChange: (String) -> Unit
 ) {
     var applyOnBoot by remember { mutableStateOf(false) }
-    var alterMethod by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             val res1 = Shell.cmd("grep '^START_ON_BOOT=' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt | cut -d= -f2").exec()
             applyOnBoot = (res1.out.joinToString("").trim() == "1")
-            
-            val res2 = Shell.cmd("grep '^ALTER_METHOD=' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt | cut -d= -f2").exec()
-            alterMethod = (res2.out.joinToString("").trim() == "1")
         }
     }
 
@@ -97,45 +93,6 @@ fun Page2(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Alternative Mode Box
-            Card(
-                colors = CardDefaults.cardColors(containerColor = cardBgColor),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(2.dp, cardBorderColor, RoundedCornerShape(12.dp))
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                        Text("Alternative Mode", color = textColor, fontWeight = FontWeight.Medium, fontSize = 18.sp)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Modify thermal trip point instead of temp", color = if (currentTheme == "anya") Color.LightGray else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, lineHeight = 16.sp)
-                    }
-                    CustomSwitch(
-                        checked = alterMethod,
-                        onCheckedChange = { isChecked ->
-                            alterMethod = isChecked
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val v = if (isChecked) "1" else "0"
-                            Shell.cmd("sed -i 's/^ALTER_METHOD=.*/ALTER_METHOD=$v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
-                            
-                            if (CheckRoot.isThermalDisabled()) {
-                                val binaryPath = "/data/adb/modules/AnyaMelfissa/AnyaMelfissa"
-                                Shell.cmd("su -M -c \"$binaryPath 1\"").exec()
-                            }
-                        }
-                    }
-                    )
-                }
-            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -153,7 +110,7 @@ fun Page2(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "In this new version, Anya no longer kills Thermal Services. Instead, it spoof \"temp\" on /sys/class/thermal/thermal_zone* to 30 cels or Modify \"trip_point_0_temp\" to 200 cels. If you ask why using this app instead of just simple WebUI. It's because now you can enable / disable Anya Thermal on your Control Center",
+                text = "In this new version, Anya no longer kills Thermal Services. Instead, it spoofs \"temp\" on /sys/class/thermal/thermal_zone* to 30 cels and modifies \"trip_point_0_temp\" to 200 cels. If you ask why using this app instead of just simple WebUI. It's because now you can enable / disable Anya Thermal on your Control Center",
                 color = textColor,
                 fontSize = 12.sp,
                 lineHeight = 16.sp
