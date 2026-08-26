@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 /*
 Anya Melfissa Thermal - Anya Thermal Kernel Level Like Logic
 Copyright (C) 2026 Kanagawa Yamada
@@ -11,6 +12,7 @@ Copyright (C) 2026 Kanagawa Yamada
 #include <dirent.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include <sched.h>
 
 #define FAKE_TEMP_FILE "/data/adb/modules/AnyaMelfissa/fake_temp"
 #define FAKE_TRIP_FILE "/data/adb/modules/AnyaMelfissa/fake_trip"
@@ -19,6 +21,11 @@ Copyright (C) 2026 Kanagawa Yamada
 #define FAKE_TRIP_VALUE "200000\n"
 #define FAKE_ZERO_VALUE "0\n"
 #define THERMAL_DIR "/sys/class/thermal"
+
+
+void umount_all(const char *path) {
+    while (umount2(path, MNT_DETACH) == 0);
+}
 
 void create_fake_temp_file() {
     int fd = open(FAKE_TEMP_FILE, O_CREAT | O_WRONLY | O_TRUNC, 0644);
@@ -80,7 +87,7 @@ void spoof_thermal() {
             write_sysfs(emul_path, FAKE_TEMP_VALUE);
 
             // Unmount first in case it's already mounted to prevent stacking
-            umount2(temp_path, MNT_DETACH);
+            umount_all(temp_path);
             // Bind mount the fake files over the real ones
             mount(FAKE_TEMP_FILE, temp_path, NULL, MS_BIND, NULL);
             
@@ -91,22 +98,22 @@ void spoof_thermal() {
                     if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_temp") != NULL) {
                         char trip_path[512];
                         snprintf(trip_path, sizeof(trip_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(trip_path, MNT_DETACH);
+                        umount_all(trip_path);
                         mount(FAKE_TRIP_FILE, trip_path, NULL, MS_BIND, NULL);
                     } else if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_hyst") != NULL) {
                         char hyst_path[512];
                         snprintf(hyst_path, sizeof(hyst_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(hyst_path, MNT_DETACH);
+                        umount_all(hyst_path);
                         mount(FAKE_ZERO_FILE, hyst_path, NULL, MS_BIND, NULL);
                     } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_trip_point") != NULL) {
                         char cdev_path[512];
                         snprintf(cdev_path, sizeof(cdev_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(cdev_path, MNT_DETACH);
+                        umount_all(cdev_path);
                         mount(FAKE_ZERO_FILE, cdev_path, NULL, MS_BIND, NULL);
                     } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_weight") != NULL) {
                         char weight_path[512];
                         snprintf(weight_path, sizeof(weight_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(weight_path, MNT_DETACH);
+                        umount_all(weight_path);
                         mount(FAKE_ZERO_FILE, weight_path, NULL, MS_BIND, NULL);
                     }
                 }
@@ -119,7 +126,7 @@ void spoof_thermal() {
             char cur_state_path[512];
             snprintf(cur_state_path, sizeof(cur_state_path), "%s/cur_state", cdev_dir);
             
-            umount2(cur_state_path, MNT_DETACH);
+            umount_all(cur_state_path);
             
             mount(FAKE_ZERO_FILE, cur_state_path, NULL, MS_BIND, NULL);
         }
@@ -154,7 +161,7 @@ void restore_thermal() {
             write_sysfs(emul_path, "0");
 
             // Unmount the fake files with MNT_DETACH to prevent EBUSY
-            umount2(temp_path, MNT_DETACH);
+            umount_all(temp_path);
             
             DIR *zdir = opendir(zone_path);
             if (zdir) {
@@ -163,19 +170,19 @@ void restore_thermal() {
                     if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_temp") != NULL) {
                         char trip_path[512];
                         snprintf(trip_path, sizeof(trip_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(trip_path, MNT_DETACH);
+                        umount_all(trip_path);
                     } else if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_hyst") != NULL) {
                         char hyst_path[512];
                         snprintf(hyst_path, sizeof(hyst_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(hyst_path, MNT_DETACH);
+                        umount_all(hyst_path);
                     } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_trip_point") != NULL) {
                         char cdev_path[512];
                         snprintf(cdev_path, sizeof(cdev_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(cdev_path, MNT_DETACH);
+                        umount_all(cdev_path);
                     } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_weight") != NULL) {
                         char weight_path[512];
                         snprintf(weight_path, sizeof(weight_path), "%s/%s", zone_path, zent->d_name);
-                        umount2(weight_path, MNT_DETACH);
+                        umount_all(weight_path);
                     }
                 }
                 closedir(zdir);
@@ -187,7 +194,7 @@ void restore_thermal() {
             char cur_state_path[512];
             snprintf(cur_state_path, sizeof(cur_state_path), "%s/cur_state", cdev_dir);
             
-            umount2(cur_state_path, MNT_DETACH);
+            umount_all(cur_state_path);
         }
         
         // Sleep for 5ms to prevent flooding system_server with mount events (prevents UI freeze)
@@ -212,6 +219,11 @@ void exec_anya_melfissa() {
 }
 
 int main(int argc, char *argv[]) {
+    int fd = open("/proc/1/ns/mnt", O_RDONLY);
+    if (fd >= 0) {
+        setns(fd, 0);
+        close(fd);
+    }
     if (argc > 1) {
         if (strcmp(argv[1], "0") == 0) {
             exec_anya_kawaii();
