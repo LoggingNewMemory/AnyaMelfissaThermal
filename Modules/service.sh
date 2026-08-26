@@ -12,4 +12,5 @@ if [ -f /data/adb/modules/AnyaMelfissa/AnyaConfig.txt ]; then
   fi
 else
   /data/adb/modules/AnyaMelfissa/AnyaMelfissa 1
+  su -lp 2000 -c "cmd notification post -S bigtext -t 'Anya Melfissa' -i file:///data/local/tmp/Anya.png -I file:///data/local/tmp/Anya.png TagAnya 'Good Day! Thermal modification is done. Now let me sleep'"
 fi

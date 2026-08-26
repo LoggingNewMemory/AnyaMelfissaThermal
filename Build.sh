@@ -6,7 +6,7 @@
 # 1 = Enable | 0 = Disable
 #========================
 export MODULEVERSION="8.0"
-export FLASHTODEVICE="1"
+export FLASHTODEVICE="0"
 export SENDTOTELEGRAM="0"
 
 #========================
@@ -76,41 +76,49 @@ build_modules() {
         rm "customize.sh.tmp"
     fi
 
-    if [ "$VARIANT" = "2" ]; then
-        # --- Build MINIMAL Variant ---
-        ZIP_NAME="${MODULE_ID}-${VERSION}-MINIMAL.zip"
-        ZIP_PATH="../$BUILD_DIR/$ZIP_NAME"
-        
-        MINIMAL_DIR="../$BUILD_DIR/minimal_tmp"
-        mkdir -p "$MINIMAL_DIR"
-        cp -r ./* "$MINIMAL_DIR/"
-        rm -f "$MINIMAL_DIR/AnyaThermal.apk"
-        rm -f "$MINIMAL_DIR/AnyaConfig.txt"
-        sed -i 's/^name=.*/& (Minimal)/' "$MINIMAL_DIR/module.prop"
-        
-        pushd "$MINIMAL_DIR" >/dev/null
-        zip -q -r "../$ZIP_NAME" ./*
-        popd >/dev/null
-        rm -rf "$MINIMAL_DIR"
-        echo "Created: $ZIP_NAME (Minimal Variant)"
-    else
-        # --- Build FULL Variant ---
-        ZIP_NAME="${MODULE_ID}-${VERSION}-FULL.zip"
-        ZIP_PATH="../$BUILD_DIR/$ZIP_NAME"
-        zip -q -r "$ZIP_PATH" ./*
-        echo "Created: $ZIP_NAME (Full Variant)"
-    fi
+    # --- Build FULL Variant ---
+    ZIP_NAME_FULL="${MODULE_ID}-${VERSION}-FULL.zip"
+    ZIP_PATH_FULL="../$BUILD_DIR/$ZIP_NAME_FULL"
+    zip -q -r "$ZIP_PATH_FULL" ./*
+    echo "Created: $ZIP_NAME_FULL (Full Variant)"
+
+    # --- Build MINIMAL Variant ---
+    ZIP_NAME_MINIMAL="${MODULE_ID}-${VERSION}-MINIMAL.zip"
+    ZIP_PATH_MINIMAL="../$BUILD_DIR/$ZIP_NAME_MINIMAL"
+    MINIMAL_DIR="../$BUILD_DIR/minimal_tmp"
+    mkdir -p "$MINIMAL_DIR"
+    cp -r ./* "$MINIMAL_DIR/"
+    rm -f "$MINIMAL_DIR/AnyaThermal.apk"
+    rm -f "$MINIMAL_DIR/AnyaConfig.txt"
+    sed -i 's/^name=.*/& (Minimal)/' "$MINIMAL_DIR/module.prop"
+    
+    pushd "$MINIMAL_DIR" >/dev/null
+    zip -q -r "../$ZIP_NAME_MINIMAL" ./*
+    popd >/dev/null
+    rm -rf "$MINIMAL_DIR"
+    echo "Created: $ZIP_NAME_MINIMAL (Minimal Variant)"
 
     cd ..
 
+    # Decide which one to flash
+    if [ "$VARIANT" = "2" ]; then
+        FLASH_ZIP="$ZIP_NAME_MINIMAL"
+    else
+        FLASH_ZIP="$ZIP_NAME_FULL"
+    fi
+
     # --- ADB Flash Prompt ---
     if [ -f "Modular/FlashToDevice.sh" ]; then
-        bash Modular/FlashToDevice.sh "$BUILD_DIR/$ZIP_NAME" "$BUILD_DIR"
+        echo "Flashing: $FLASH_ZIP"
+        bash Modular/FlashToDevice.sh "$BUILD_DIR/$FLASH_ZIP" "$BUILD_DIR"
     fi
 
     # --- Telegram Post ---
     if [ -f "Modular/SendToTelegram.sh" ]; then
-        bash Modular/SendToTelegram.sh "$MODULE_ID" "$VERSION" "$BUILD_DIR/$ZIP_NAME"
+        echo "Sending FULL variant:"
+        bash Modular/SendToTelegram.sh "$MODULE_ID-FULL" "$VERSION" "$BUILD_DIR/$ZIP_NAME_FULL"
+        echo "Sending MINIMAL variant:"
+        bash Modular/SendToTelegram.sh "$MODULE_ID-MINIMAL" "$VERSION" "$BUILD_DIR/$ZIP_NAME_MINIMAL"
     fi
 }
 
