@@ -11,6 +11,7 @@ Copyright (C) 2026 Kanagawa Yamada
 #include <fcntl.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/mount.h>
 
 #define FAKE_TEMP_FILE "/data/adb/modules/AnyaMelfissa/fake_temp"
 #define FAKE_ZERO_FILE "/data/adb/modules/AnyaMelfissa/fake_zero"
@@ -18,18 +19,12 @@ Copyright (C) 2026 Kanagawa Yamada
 #define FAKE_ZERO_VALUE "0\n"
 #define THERMAL_DIR "/sys/class/thermal"
 
-FILE *sh_pipe = NULL;
-
 void umount_all(const char *path) {
-    if (sh_pipe) {
-        fprintf(sh_pipe, "umount -l \"%s\" 2>/dev/null\n", path);
-    }
+    umount2(path, MNT_DETACH);
 }
 
 void mount_bind(const char *src, const char *dest) {
-    if (sh_pipe) {
-        fprintf(sh_pipe, "mount --bind \"%s\" \"%s\"\n", src, dest);
-    }
+    mount(src, dest, NULL, MS_BIND, NULL);
 }
 
 void create_fake_temp_file() {
@@ -59,9 +54,6 @@ void write_sysfs(const char *path, const char *val) {
 void spoof_thermal() {
     create_fake_temp_file();
     create_fake_zero_file();
-
-    sh_pipe = popen("sh", "w");
-    if (!sh_pipe) return;
 
     DIR *dir = opendir(THERMAL_DIR);
     if (!dir) return;
@@ -101,16 +93,9 @@ void spoof_thermal() {
         }
     }
     closedir(dir);
-    if (sh_pipe) {
-        pclose(sh_pipe);
-        sh_pipe = NULL;
-    }
 }
 
 void restore_thermal() {
-    sh_pipe = popen("sh", "w");
-    if (!sh_pipe) return;
-
     DIR *dir = opendir(THERMAL_DIR);
     if (!dir) return;
 
@@ -145,10 +130,6 @@ void restore_thermal() {
         }
     }
     closedir(dir);
-    if (sh_pipe) {
-        pclose(sh_pipe);
-        sh_pipe = NULL;
-    }
     
     unlink(FAKE_TEMP_FILE);
     unlink(FAKE_ZERO_FILE);
