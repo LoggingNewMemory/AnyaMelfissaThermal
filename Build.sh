@@ -14,7 +14,7 @@ export SENDTOTELEGRAM="0"
 # 1 = Full
 # 2 = Minimal
 #========================
-export VARIANT="2"
+export VARIANT="1"
 
 MODULES_DIR="Modules"
 BUILD_DIR="Build"

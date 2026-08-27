@@ -10,9 +10,7 @@ Copyright (C) 2026 Kanagawa Yamada
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <sys/mount.h>
 #include <sys/stat.h>
-#include <sched.h>
 
 #define FAKE_TEMP_FILE "/data/adb/modules/AnyaMelfissa/fake_temp"
 #define FAKE_TRIP_FILE "/data/adb/modules/AnyaMelfissa/fake_trip"
@@ -24,7 +22,15 @@ Copyright (C) 2026 Kanagawa Yamada
 
 
 void umount_all(const char *path) {
-    while (umount2(path, MNT_DETACH) == 0);
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "umount -l \"%s\" 2>/dev/null", path);
+    system(cmd);
+}
+
+void mount_bind(const char *src, const char *dest) {
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "mount --bind \"%s\" \"%s\"", src, dest);
+    system(cmd);
 }
 
 void create_fake_temp_file() {
@@ -89,7 +95,7 @@ void spoof_thermal() {
             // Unmount first in case it's already mounted to prevent stacking
             umount_all(temp_path);
             // Bind mount the fake files over the real ones
-            mount(FAKE_TEMP_FILE, temp_path, NULL, MS_BIND, NULL);
+            mount_bind(FAKE_TEMP_FILE, temp_path);
             
             DIR *zdir = opendir(zone_path);
             if (zdir) {
@@ -99,22 +105,22 @@ void spoof_thermal() {
                         char trip_path[512];
                         snprintf(trip_path, sizeof(trip_path), "%s/%s", zone_path, zent->d_name);
                         umount_all(trip_path);
-                        mount(FAKE_TRIP_FILE, trip_path, NULL, MS_BIND, NULL);
+                        mount_bind(FAKE_TRIP_FILE, trip_path);
                     } else if (strncmp(zent->d_name, "trip_point_", 11) == 0 && strstr(zent->d_name, "_hyst") != NULL) {
                         char hyst_path[512];
                         snprintf(hyst_path, sizeof(hyst_path), "%s/%s", zone_path, zent->d_name);
                         umount_all(hyst_path);
-                        mount(FAKE_ZERO_FILE, hyst_path, NULL, MS_BIND, NULL);
+                        mount_bind(FAKE_ZERO_FILE, hyst_path);
                     } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_trip_point") != NULL) {
                         char cdev_path[512];
                         snprintf(cdev_path, sizeof(cdev_path), "%s/%s", zone_path, zent->d_name);
                         umount_all(cdev_path);
-                        mount(FAKE_ZERO_FILE, cdev_path, NULL, MS_BIND, NULL);
+                        mount_bind(FAKE_ZERO_FILE, cdev_path);
                     } else if (strncmp(zent->d_name, "cdev", 4) == 0 && strstr(zent->d_name, "_weight") != NULL) {
                         char weight_path[512];
                         snprintf(weight_path, sizeof(weight_path), "%s/%s", zone_path, zent->d_name);
                         umount_all(weight_path);
-                        mount(FAKE_ZERO_FILE, weight_path, NULL, MS_BIND, NULL);
+                        mount_bind(FAKE_ZERO_FILE, weight_path);
                     }
                 }
                 closedir(zdir);
@@ -128,7 +134,7 @@ void spoof_thermal() {
             
             umount_all(cur_state_path);
             
-            mount(FAKE_ZERO_FILE, cur_state_path, NULL, MS_BIND, NULL);
+            mount_bind(FAKE_ZERO_FILE, cur_state_path);
         }
         
         // Sleep for 5ms to prevent flooding system_server with mount events (prevents UI freeze)
@@ -219,11 +225,6 @@ void exec_anya_melfissa() {
 }
 
 int main(int argc, char *argv[]) {
-    int fd = open("/proc/1/ns/mnt", O_RDONLY);
-    if (fd >= 0) {
-        setns(fd, 0);
-        close(fd);
-    }
     if (argc > 1) {
         if (strcmp(argv[1], "0") == 0) {
             exec_anya_kawaii();
