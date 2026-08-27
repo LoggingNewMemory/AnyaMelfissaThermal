@@ -195,7 +195,7 @@ fun Page1(
                         onCheckedChange = { isChecked ->
                             onDisableThermalChange(isChecked)
                             coroutineScope.launch(Dispatchers.IO) {
-                                val scriptCommand = if (isChecked) "su -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 1'" else "su -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 0'"
+                                val scriptCommand = if (isChecked) "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 1'" else "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 0'"
                                 Shell.cmd(scriptCommand).exec()
                             }
                         }

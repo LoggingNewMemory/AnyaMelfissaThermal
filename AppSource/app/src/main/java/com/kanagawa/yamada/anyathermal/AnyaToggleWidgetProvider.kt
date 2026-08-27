@@ -28,7 +28,7 @@ class AnyaToggleWidgetProvider : AppWidgetProvider() {
                 val arg = if (isCurrentlyDisabled) "0" else "1"
                 val newState = arg == "1"
                 
-                val scriptCommand = if (arg == "1") "su -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 1'" else "su -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 0'"
+                val scriptCommand = if (arg == "1") "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 1'" else "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 0'"
                 Shell.cmd(scriptCommand).exec()
                 
                 // Update the state globally so MainActivity and Tiles also update
