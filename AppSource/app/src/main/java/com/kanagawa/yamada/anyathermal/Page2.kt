@@ -28,7 +28,7 @@ fun Page2(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            val res1 = Shell.cmd("cat /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+            val res1 = Shell.cmd("su -c 'cat /data/adb/modules/AnyaMelfissa/AnyaConfig.txt'").exec()
             applyOnBoot = res1.out.joinToString("\n").contains("START_ON_BOOT 1")
         }
     }
@@ -86,7 +86,7 @@ fun Page2(
                             applyOnBoot = isChecked
                             coroutineScope.launch(Dispatchers.IO) {
                                 val v = if (isChecked) "1" else "0"
-                                Shell.cmd("sed -i 's/^START_ON_BOOT .*/START_ON_BOOT $v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+                                Shell.cmd("su -c \"sed -i 's/^START_ON_BOOT .*/START_ON_BOOT $v/' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt\"").exec()
                             }
                         }
                     )
