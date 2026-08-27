@@ -11,8 +11,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -132,7 +136,7 @@ fun MainScreen() {
 
             if (isCheckingRoot) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                    androidx.compose.material3.CircularProgressIndicator(color = if (appTheme == "anya") Color.White else MaterialTheme.colorScheme.primary)
+                    SkeletonLoadingScreen()
                 }
             } else if (!isRooted) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
@@ -168,5 +172,50 @@ fun MainScreen() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SkeletonLoadingScreen() {
+    val infiniteTransition = rememberInfiniteTransition()
+    val alphaAnim by infiniteTransition.animateFloat(
+        initialValue = 0.2f,
+        targetValue = 0.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutLinearInEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = androidx.compose.ui.Alignment.Start
+        ) {
+            // Title placeholder
+            Box(modifier = Modifier.fillMaxWidth(0.8f).height(40.dp).alpha(alphaAnim).background(Color.Gray, androidx.compose.foundation.shape.RoundedCornerShape(8.dp)))
+            Spacer(modifier = Modifier.height(12.dp))
+            // Subtitle placeholder
+            Box(modifier = Modifier.fillMaxWidth(0.5f).height(20.dp).alpha(alphaAnim).background(Color.Gray, androidx.compose.foundation.shape.RoundedCornerShape(8.dp)))
+            
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+        
+        // Small text placeholder
+        Box(modifier = Modifier.fillMaxWidth(0.4f).height(12.dp).alpha(alphaAnim).background(Color.Gray, androidx.compose.foundation.shape.RoundedCornerShape(4.dp)))
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Card placeholder
+        Box(modifier = Modifier.fillMaxWidth().height(72.dp).alpha(alphaAnim).background(Color.Gray, androidx.compose.foundation.shape.RoundedCornerShape(12.dp)))
+        
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
