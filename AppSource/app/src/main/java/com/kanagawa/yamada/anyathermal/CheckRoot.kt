@@ -14,8 +14,8 @@ object CheckRoot {
     }
 
     suspend fun isThermalDisabled(): Boolean = withContext(Dispatchers.IO) {
-        val result = Shell.cmd("grep '^ANYA ' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt | awk '{print $2}'").exec()
-        val out = result.out.joinToString("").trim()
-        out == "1"
+        val result = Shell.cmd("cat /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+        val out = result.out.joinToString("\n")
+        out.contains("ANYA 1")
     }
 }

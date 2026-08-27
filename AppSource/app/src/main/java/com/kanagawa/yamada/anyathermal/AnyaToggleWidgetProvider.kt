@@ -41,6 +41,9 @@ class AnyaToggleWidgetProvider : AppWidgetProvider() {
                     updateAppWidget(context, appWidgetManager, appWidgetId, newState)
                 }
                 
+                val componentName = ComponentName(context, AnyaTileService::class.java)
+                android.service.quicksettings.TileService.requestListeningState(context, componentName)
+                
                 pendingResult.finish()
             }
         }

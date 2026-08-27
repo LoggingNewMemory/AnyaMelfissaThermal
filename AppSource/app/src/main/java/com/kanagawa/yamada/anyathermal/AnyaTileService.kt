@@ -40,6 +40,15 @@ class AnyaTileService : TileService() {
             // Optimistically update the tile state without querying mount again immediately
             updateTileState(newState)
             CheckRoot.thermalStateFlow.tryEmit(newState)
+            
+            val widgetIntent = android.content.Intent(this@AnyaTileService, AnyaToggleWidgetProvider::class.java).apply {
+                action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            }
+            val widgetIds = android.appwidget.AppWidgetManager.getInstance(this@AnyaTileService).getAppWidgetIds(
+                android.content.ComponentName(this@AnyaTileService, AnyaToggleWidgetProvider::class.java)
+            )
+            widgetIntent.putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+            sendBroadcast(widgetIntent)
         }
     }
 

@@ -28,8 +28,8 @@ fun Page2(
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
-            val res1 = Shell.cmd("grep '^START_ON_BOOT ' /data/adb/modules/AnyaMelfissa/AnyaConfig.txt | awk '{print $2}'").exec()
-            applyOnBoot = (res1.out.joinToString("").trim() == "1")
+            val res1 = Shell.cmd("cat /data/adb/modules/AnyaMelfissa/AnyaConfig.txt").exec()
+            applyOnBoot = res1.out.joinToString("\n").contains("START_ON_BOOT 1")
         }
     }
 

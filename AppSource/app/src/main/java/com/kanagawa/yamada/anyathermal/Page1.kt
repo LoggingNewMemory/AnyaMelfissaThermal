@@ -197,6 +197,18 @@ fun Page1(
                             coroutineScope.launch(Dispatchers.IO) {
                                 val scriptCommand = if (isChecked) "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 1'" else "su -M -c '/data/adb/modules/AnyaMelfissa/AnyaMelfissa 0'"
                                 Shell.cmd(scriptCommand).exec()
+                                
+                                val componentName = android.content.ComponentName(context, AnyaTileService::class.java)
+                                android.service.quicksettings.TileService.requestListeningState(context, componentName)
+                                
+                                val widgetIntent = android.content.Intent(context, AnyaToggleWidgetProvider::class.java).apply {
+                                    action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                                }
+                                val widgetIds = android.appwidget.AppWidgetManager.getInstance(context).getAppWidgetIds(
+                                    android.content.ComponentName(context, AnyaToggleWidgetProvider::class.java)
+                                )
+                                widgetIntent.putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+                                context.sendBroadcast(widgetIntent)
                             }
                         }
                     )
