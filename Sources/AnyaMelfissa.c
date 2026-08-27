@@ -20,17 +20,18 @@ Copyright (C) 2026 Kanagawa Yamada
 #define FAKE_ZERO_VALUE "0\n"
 #define THERMAL_DIR "/sys/class/thermal"
 
+FILE *sh_pipe = NULL;
 
 void umount_all(const char *path) {
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "umount -l \"%s\" 2>/dev/null", path);
-    system(cmd);
+    if (sh_pipe) {
+        fprintf(sh_pipe, "umount -l \"%s\" 2>/dev/null\n", path);
+    }
 }
 
 void mount_bind(const char *src, const char *dest) {
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "mount --bind \"%s\" \"%s\"", src, dest);
-    system(cmd);
+    if (sh_pipe) {
+        fprintf(sh_pipe, "mount --bind \"%s\" \"%s\"\n", src, dest);
+    }
 }
 
 void create_fake_temp_file() {
@@ -69,6 +70,9 @@ void spoof_thermal() {
     create_fake_temp_file();
     create_fake_trip_file();
     create_fake_zero_file();
+
+    sh_pipe = popen("sh", "w");
+    if (!sh_pipe) return;
 
     DIR *dir = opendir(THERMAL_DIR);
     if (!dir) return;
@@ -137,13 +141,18 @@ void spoof_thermal() {
             mount_bind(FAKE_ZERO_FILE, cur_state_path);
         }
         
-        // Sleep for 5ms to prevent flooding system_server with mount events (prevents UI freeze)
-        usleep(5000);
     }
     closedir(dir);
+    if (sh_pipe) {
+        pclose(sh_pipe);
+        sh_pipe = NULL;
+    }
 }
 
 void restore_thermal() {
+    sh_pipe = popen("sh", "w");
+    if (!sh_pipe) return;
+
     DIR *dir = opendir(THERMAL_DIR);
     if (!dir) return;
 
@@ -203,10 +212,12 @@ void restore_thermal() {
             umount_all(cur_state_path);
         }
         
-        // Sleep for 5ms to prevent flooding system_server with mount events (prevents UI freeze)
-        usleep(5000);
     }
     closedir(dir);
+    if (sh_pipe) {
+        pclose(sh_pipe);
+        sh_pipe = NULL;
+    }
     
     unlink(FAKE_TEMP_FILE);
     unlink(FAKE_TRIP_FILE);
