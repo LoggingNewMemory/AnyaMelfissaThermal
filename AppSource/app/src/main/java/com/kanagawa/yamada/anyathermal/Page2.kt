@@ -110,7 +110,7 @@ fun Page2(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "In this new version, Anya no longer kills Thermal Services. Instead, it spoofs \"temp\" on /sys/class/thermal/thermal_zone* to 30 cels and modifies \"trip_point_0_temp\" to 200 cels. If you ask why using this app instead of just simple WebUI. It's because now you can enable / disable Anya Thermal on your Control Center",
+                text = "In this new version, Anya no longer kills Thermal Services. Instead, it spoofs \"temp\" on /sys/class/thermal/thermal_zone* to 30 cels and modifies \"cdev*_trip_point\" and \"cdev*_weight\" to 0. If you ask why using this app instead of just simple WebUI. It's because now you can enable / disable Anya Thermal on your Control Center",
                 color = textColor,
                 fontSize = 12.sp,
                 lineHeight = 16.sp
