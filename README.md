@@ -1,10 +1,5 @@
-<img width="1280" height="720" alt="Banner" src="https://github.com/user-attachments/assets/e2316574-836b-4606-bbf5-216bfb0196da" />
+<img width="1280" height="720" alt="Banner" src="https://github.com/user-attachments/assets/3ac40046-ee0a-40eb-a13a-42b27a6ed936" />
 
-### Tip
-Use action to access Anya Control Panel
-
-### WARNING 
-Cannot use getprop | grep thermal anymore to check due to spoof thermal running 
-
-Use
-> ps -A | grep -i thermal
+  ## 💰 You can help me by Donating
+  [SociaBuzz](https://sociabuzz.com/kanagawa_yamada/tribe) <br />
+  [QRIS](https://t.me/KLAGen2/86) <br />
